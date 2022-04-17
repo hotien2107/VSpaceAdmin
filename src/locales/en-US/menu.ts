@@ -49,4 +49,12 @@ export default {
   'menu.editor.flow': 'Flow Editor',
   'menu.editor.mind': 'Mind Editor',
   'menu.editor.koni': 'Koni Editor',
+  'menu.users': 'Users',
+  'menu.users.table-users': 'User List',
+  'menu.users.basic-users': 'Basic Users',
+  'menu.users.card-users': 'Card Users',
+  'menu.users.search-users': 'Search Users',
+  'menu.users.search-users.articles': 'Search Users(articles)',
+  'menu.users.search-users.projects': 'Search Users(projects)',
+  'menu.users.search-users.applications': 'Search Users(applications)',
 };

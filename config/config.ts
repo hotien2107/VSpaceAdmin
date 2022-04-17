@@ -35,6 +35,23 @@ export default defineConfig({
   // umi routes: https://umijs.org/docs/routing
   routes: [
     {
+      path: '/users',
+      icon: 'user',
+      name: 'users',
+      routes: [
+        {
+          path: '/users',
+          redirect: '/users/table-users',
+        },
+        {
+          name: 'table-users',
+          icon: 'smile',
+          path: '/users/table-users',
+          component: './users/table-users',
+        },
+      ],
+    },
+    {
       path: '/user',
       layout: false,
       routes: [
@@ -310,7 +327,7 @@ export default defineConfig({
     },
     {
       path: '/',
-      redirect: '/dashboard/analysis',
+      redirect: '/users/table-users',
     },
     {
       component: '404',

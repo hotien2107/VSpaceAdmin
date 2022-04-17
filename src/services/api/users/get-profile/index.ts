@@ -1,5 +1,5 @@
 import HttpClient from "../../../../helpers/axios";
-import { UserApiResponseInterface } from "./types";
+import type { UserApiResponseInterface } from "./types";
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 const URL = baseUrl + "/users/me/profile";

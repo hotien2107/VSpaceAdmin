@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import type { Request, Response } from 'express';
 import { parse } from 'url';
 import type { TableListItem, TableListParams } from './data.d';
@@ -18,8 +17,8 @@ const genList = (current: number, pageSize: number) => {
         'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
       ][i % 2],
       name: `TradeCode ${index}`,
-      owner: '曲丽丽',
-      desc: '这是一段描述',
+      owner: 'Tiến',
+      desc: 'Mô tả',
       callNo: Math.floor(Math.random() * 1000),
       status: (Math.floor(Math.random() * 10) % 4).toString(),
       updatedAt: new Date(),

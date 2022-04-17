@@ -1,84 +1,17 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer } from 'antd';
-import React, { useState, useRef } from 'react';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import type { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
-import type { FormValueType } from './components/UpdateForm';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
+import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import { Button, Drawer, Input } from 'antd';
+import React, { useRef, useState } from 'react';
 import UpdateForm from './components/UpdateForm';
-import { rule, addRule, updateRule, removeRule } from './service';
-import type { TableListItem, TableListPagination } from './data';
-/**
- * 添加节点
- *
- * @param fields
- */
+import type { TableUsersItem, TableUsersPagination } from './data';
+import { users } from './service';
 
-const handleAdd = async (fields: TableListItem) => {
-  const hide = message.loading('Thêm vào');
-
-  try {
-    await addRule({ ...fields });
-    hide();
-    message.success('Thêm thành công');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Không thêm được, vui lòng thử lại!');
-    return false;
-  }
-};
-/**
- * 更新节点
- *
- * @param fields
- */
-
-const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
-  const hide = message.loading('Cấu hình');
-
-  try {
-    await updateRule({
-      ...currentRow,
-      ...fields,
-    });
-    hide();
-    message.success('Đã cấu hình thành công');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Cấu hình không thành công, vui lòng thử lại!');
-    return false;
-  }
-};
-/**
- * 删除节点
- *
- * @param selectedRows
- */
-
-const handleRemove = async (selectedRows: TableListItem[]) => {
-  const hide = message.loading('xóa');
-  if (!selectedRows) return true;
-
-  try {
-    await removeRule({
-      key: selectedRows.map((row) => row.key),
-    });
-    hide();
-    message.success('Đã xóa thành công, sẽ sớm được làm mới');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Xóa không thành công, vui lòng thử lại');
-    return false;
-  }
-};
-
-const TableList: React.FC = () => {
+const TableUsers: React.FC = () => {
   //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   //  Cửa sổ cập nhật phân phối bật lên
@@ -86,15 +19,14 @@ const TableList: React.FC = () => {
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<TableListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
+  const [currentRow, setCurrentRow] = useState<TableUsersItem>();
+  const [selectedRowsState, setSelectedRows] = useState<TableUsersItem[]>([]);
   // Cấu hình quốc tế hóa
 
-  const columns: ProColumns<TableListItem>[] = [
+  const columns: ProColumns<TableUsersItem>[] = [
     {
-      title: 'Tên quy tắc',
+      title: 'Tên người dùng',
       dataIndex: 'name',
-      tip: 'Tên quy tắc là duy nhất',
       render: (dom, entity) => {
         return (
           <a
@@ -109,16 +41,17 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: 'Diễn tả',
-      dataIndex: 'desc',
-      valueType: 'textarea',
+      title: 'email',
+      dataIndex: 'email',
+      sorter: true,
+      renderText: (val: string) => `${val}`,
     },
     {
-      title: 'Số lượng cuộc gọi dịch vụ',
-      dataIndex: 'callNo',
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
       sorter: true,
       hideInForm: true,
-      renderText: (val: string) => `${val}万`,
+      renderText: (val: string) => `${val}`,
     },
     {
       title: 'Trạng thái',
@@ -126,27 +59,23 @@ const TableList: React.FC = () => {
       hideInForm: true,
       valueEnum: {
         0: {
-          text: 'Mặc định',
-          status: 'Default',
+          text: 'Đã kích hoạt',
+          status: 'active',
         },
         1: {
-          text: 'Đang xử lý',
-          status: 'Processing',
+          text: 'Chưa kích hoạt',
+          status: 'inactive',
         },
         2: {
-          text: 'Thành công',
-          status: 'Success',
-        },
-        3: {
-          text: 'Thất bại',
-          status: 'Error',
+          text: 'Chặn',
+          status: 'blocked',
         },
       },
     },
     {
-      title: 'Thời gian cập nhật',
+      title: 'Thời gian giam gia',
       sorter: true,
-      dataIndex: 'updatedAt',
+      dataIndex: 'createdAt',
       valueType: 'dateTime',
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
         const status = form.getFieldValue('status');
@@ -155,12 +84,18 @@ const TableList: React.FC = () => {
           return false;
         }
 
-        if (`${status}` === '3') {
-          return <Input {...rest} placeholder="Vui lòng nhập lý do thất bại!" />;
+        if (`${status}` === '2') {
+          return <Input {...rest} placeholder="Vui lòng nhập lý do chặn!" />;
         }
 
         return defaultRender(item);
       },
+    },
+    {
+      title: 'Loại đăng nhập',
+      sorter: true,
+      dataIndex: 'provider',
+      renderText: (val: string) => `${val}`,
     },
     {
       title: 'Tuỳ chọn',
@@ -174,18 +109,16 @@ const TableList: React.FC = () => {
             setCurrentRow(record);
           }}
         >
-          Cấu hình
+          Xem chi tiết
         </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          Đăng ký thông báo
-        </a>,
+        <a key="subscribeAlert">Block</a>,
       ],
     },
   ];
 
   return (
     <PageContainer>
-      <ProTable<TableListItem, TableListPagination>
+      <ProTable<TableUsersItem, TableUsersPagination>
         headerTitle="Mẫu yêu cầu"
         actionRef={actionRef}
         rowKey="key"
@@ -203,7 +136,7 @@ const TableList: React.FC = () => {
             <PlusOutlined /> Mới
           </Button>,
         ]}
-        request={rule}
+        request={users}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
@@ -224,16 +157,12 @@ const TableList: React.FC = () => {
                 {selectedRowsState.length}
               </a>{' '}
               Mục &nbsp;&nbsp;
-              <span>
-                Tổng số cuộc gọi dịch vụ{' '}
-                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
-              </span>
             </div>
           }
         >
           <Button
             onClick={async () => {
-              await handleRemove(selectedRowsState);
+              console.log('Block user');
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -244,44 +173,28 @@ const TableList: React.FC = () => {
         </FooterToolbar>
       )}
       <ModalForm
-        title="Quy tắc mới"
+        title="Người dùng mới"
         width="400px"
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          const success = await handleAdd(value as TableListItem);
-          if (success) {
-            handleModalVisible(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+          console.log(value);
         }}
       >
         <ProFormText
           rules={[
             {
               required: true,
-              message: 'Tên quy tắc là bắt buộc',
+              message: 'Tên người dùng là bắt buộc',
             },
           ]}
           width="md"
           name="name"
         />
-        <ProFormTextArea width="md" name="desc" />
       </ModalForm>
       <UpdateForm
         onSubmit={async (value) => {
-          const success = await handleUpdate(value, currentRow);
-
-          if (success) {
-            handleUpdateModalVisible(false);
-            setCurrentRow(undefined);
-
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+          console.log(value);
         }}
         onCancel={() => {
           handleUpdateModalVisible(false);
@@ -301,7 +214,7 @@ const TableList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<TableListItem>
+          <ProDescriptions<TableUsersItem>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -310,7 +223,7 @@ const TableList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<TableListItem>[]}
+            columns={columns as ProDescriptionsItemProps<TableUsersItem>[]}
           />
         )}
       </Drawer>
@@ -318,4 +231,4 @@ const TableList: React.FC = () => {
   );
 };
 
-export default TableList;
+export default TableUsers;
