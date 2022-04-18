@@ -16,15 +16,15 @@ type SearchProps = {
 const tabList = [
   {
     key: 'articles',
-    tab: '文章',
+    tab: 'articles',
   },
   {
     key: 'projects',
-    tab: '项目',
+    tab: 'projects',
   },
   {
     key: 'applications',
-    tab: '应用',
+    tab: 'applications',
   },
 ];
 
@@ -67,8 +67,8 @@ const Search: FC<SearchProps> = (props) => {
       content={
         <div style={{ textAlign: 'center' }}>
           <Input.Search
-            placeholder="请输入"
-            enterButton="搜索"
+            placeholder="search"
+            enterButton="search"
             size="large"
             onSearch={handleFormSubmit}
             style={{ maxWidth: 522, width: '100%' }}

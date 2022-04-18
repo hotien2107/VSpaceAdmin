@@ -8,7 +8,7 @@ import {
   ProFormRadio,
   ProFormDateTimePicker,
 } from '@ant-design/pro-form';
-import type { TableListItem } from '../data';
+import type { TableListItem } from '../type';
 
 export type FormValueType = {
   target?: string;
@@ -39,7 +39,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
               padding: '32px 40px 48px',
             }}
             destroyOnClose
-            title="规则配置"
+            title="Update"
             visible={props.updateModalVisible}
             footer={submitter}
             onCancel={() => {
@@ -55,30 +55,29 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       <StepsForm.StepForm
         initialValues={{
           name: props.values.name,
-          desc: props.values.desc,
         }}
-        title="基本信息"
+        title="search"
       >
         <ProFormText
           name="name"
-          label="规则名称"
+          label="hi"
           width="md"
           rules={[
             {
               required: true,
-              message: '请输入规则名称！',
+              message: 'hi',
             },
           ]}
         />
         <ProFormTextArea
           name="desc"
           width="md"
-          label="规则描述"
-          placeholder="请输入至少五个字符"
+          label="hi"
+          placeholder="hi"
           rules={[
             {
               required: true,
-              message: '请输入至少五个字符的规则描述！',
+              message: 'hi',
               min: 5,
             },
           ]}
@@ -89,15 +88,15 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
           target: '0',
           template: '0',
         }}
-        title="配置规则属性"
+        title="hi"
       >
         <ProFormSelect
           name="target"
           width="md"
-          label="监控对象"
+          label="hi"
           valueEnum={{
-            0: '表一',
-            1: '表二',
+            0: 'hi',
+            1: 'i',
           }}
         />
         <ProFormSelect

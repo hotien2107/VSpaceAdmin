@@ -4,13 +4,15 @@ import React, { useState, useRef } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 import { rule, addRule, updateRule, removeRule } from './service';
-import type { TableListItem, TableListPagination } from './data';
+import type { TableListItem, TableListPagination } from './type';
+import { Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 /**
  * 添加节点
  *
@@ -18,16 +20,16 @@ import type { TableListItem, TableListPagination } from './data';
  */
 
 const handleAdd = async (fields: TableListItem) => {
-  const hide = message.loading('正在添加');
+  const hide = message.loading('loading');
 
   try {
     await addRule({ ...fields });
     hide();
-    message.success('添加成功');
+    message.success('Success');
     return true;
   } catch (error) {
     hide();
-    message.error('添加失败请重试！');
+    message.error('Fails');
     return false;
   }
 };
@@ -38,7 +40,7 @@ const handleAdd = async (fields: TableListItem) => {
  */
 
 const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
-  const hide = message.loading('正在配置');
+  const hide = message.loading('loading');
 
   try {
     await updateRule({
@@ -46,11 +48,11 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) =
       ...fields,
     });
     hide();
-    message.success('配置成功');
+    message.success('Success');
     return true;
   } catch (error) {
     hide();
-    message.error('配置失败请重试！');
+    message.error('Fail');
     return false;
   }
 };
@@ -61,19 +63,19 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) =
  */
 
 const handleRemove = async (selectedRows: TableListItem[]) => {
-  const hide = message.loading('正在删除');
+  const hide = message.loading('loading');
   if (!selectedRows) return true;
 
   try {
-    await removeRule({
-      key: selectedRows.map((row) => row.key),
-    });
+    // await removeRule({
+    //   id: selectedRows.map((row) => row.id),
+    // });
     hide();
-    message.success('删除成功，即将刷新');
+    message.success('Success');
     return true;
   } catch (error) {
     hide();
-    message.error('删除失败，请重试');
+    message.error('Failed');
     return false;
   }
 };
@@ -88,13 +90,15 @@ const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
+  const [isModel, setIsModel] = useState<string>("");
+
+
   /** 国际化配置 */
 
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: '规则名称',
+      title: 'Name Model',
       dataIndex: 'name',
-      tip: '规则名称是唯一的 key',
       render: (dom, entity) => {
         return (
           <a
@@ -109,42 +113,12 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: '描述',
+      title: 'Link model',
       dataIndex: 'desc',
       valueType: 'textarea',
     },
     {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
-      sorter: true,
-      hideInForm: true,
-      renderText: (val: string) => `${val}万`,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      hideInForm: true,
-      valueEnum: {
-        0: {
-          text: '关闭',
-          status: 'Default',
-        },
-        1: {
-          text: '运行中',
-          status: 'Processing',
-        },
-        2: {
-          text: '已上线',
-          status: 'Success',
-        },
-        3: {
-          text: '异常',
-          status: 'Error',
-        },
-      },
-    },
-    {
-      title: '上次调度时间',
+      title: 'Date',
       sorter: true,
       dataIndex: 'updatedAt',
       valueType: 'dateTime',
@@ -163,7 +137,7 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: '操作',
+      title: 'Option',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
@@ -174,19 +148,37 @@ const TableList: React.FC = () => {
             setCurrentRow(record);
           }}
         >
-          配置
-        </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          订阅警报
-        </a>,
+          Edit
+        </a>
       ],
     },
   ];
 
+  
+  const handleModelChange = (info: any) => {
+    const hide = message.loading('loading');
+
+      if (info.file.status === "uploading") {
+        hide();
+        message.success('loading');
+      }
+      if (info.file.status === "done") {
+        hide();
+        setIsModel(info.file.response.data.url);
+        message.success('Success');
+        return true;
+      }
+      if (info.file.status === "error") {
+        hide();
+        message.error('Failed');
+        return false;
+      }
+  };
+
   return (
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
-        headerTitle="查询表格"
+        headerTitle="Model List"
         actionRef={actionRef}
         rowKey="key"
         search={{
@@ -200,7 +192,7 @@ const TableList: React.FC = () => {
               handleModalVisible(true);
             }}
           >
-            <PlusOutlined /> 新建
+            <PlusOutlined /> Create
           </Button>,
         ]}
         request={rule}
@@ -215,17 +207,8 @@ const TableList: React.FC = () => {
         <FooterToolbar
           extra={
             <div>
-              已选择{' '}
-              <a
-                style={{
-                  fontWeight: 600,
-                }}
-              >
-                {selectedRowsState.length}
-              </a>{' '}
-              项 &nbsp;&nbsp;
               <span>
-                服务调用次数总计 {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
+                Are you sure want to delete this model?
               </span>
             </div>
           }
@@ -237,17 +220,18 @@ const TableList: React.FC = () => {
               actionRef.current?.reloadAndRest?.();
             }}
           >
-            批量删除
+            Yes
           </Button>
-          <Button type="primary">批量审批</Button>
+          <Button type="primary">No</Button>
         </FooterToolbar>
       )}
       <ModalForm
-        title="新建规则"
+        title="Create model"
         width="400px"
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
+          console.log(value);
           const success = await handleAdd(value as TableListItem);
           if (success) {
             handleModalVisible(false);
@@ -261,13 +245,26 @@ const TableList: React.FC = () => {
           rules={[
             {
               required: true,
-              message: '规则名称为必填项',
+              message: 'Name is required',
             },
           ]}
           width="md"
           name="name"
+          placeholder="Enter name..."
+          label="Name model"
         />
-        <ProFormTextArea width="md" name="desc" />
+        <Upload
+                name="avatar"
+                listType="picture"
+                showUploadList={false}
+                action={`${process.env.REACT_APP_BASE_URL}/uploads/model`}
+                onChange={handleModelChange}
+                headers={{Authorization: `Bearer ${localStorage.getItem("token")}`}}
+                accept=".glb"
+            >
+               <Button icon={<UploadOutlined />}>Click to upload model</Button>
+            </Upload>
+
       </ModalForm>
       <UpdateForm
         onSubmit={async (value) => {

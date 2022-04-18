@@ -57,6 +57,7 @@
     "@antv/l7": "^2.3.7",
     "@antv/l7-maps": "^2.3.7",
     "@antv/l7-react": "^2.1.9",
+    "@reduxjs/toolkit": "^1.8.1",
     "@umijs/route-utils": "^1.0.36",
     "ahooks": "^2.0.0",
     "antd": "^4.14.0",
@@ -77,6 +78,7 @@
     "react-fittext": "^1.0.0",
     "react-helmet-async": "^1.0.4",
     "react-router": "^4.3.1",
+    "react-router-dom": "^5.3.1",
     "react-toastify": "^8.2.0",
     "umi": "^3.5.0",
     "umi-serve": "^1.9.10"
