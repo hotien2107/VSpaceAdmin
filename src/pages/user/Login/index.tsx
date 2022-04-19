@@ -7,18 +7,61 @@ import {
   WeiboCircleOutlined,
 } from '@ant-design/icons';
 import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
-import { Tabs } from 'antd';
-import React, { useState } from 'react';
+import { message } from 'antd';
+import React from 'react';
+import { useHistory } from 'react-router';
 import { FormattedMessage, SelectLang, useIntl } from 'umi';
+import { saveDataLocal } from '../../../helpers/localStorage';
+import LoginProxy from '../../../services/proxy/auth/login';
+import { useAppDispatch } from '../../../stores';
+import { setAuthenticated, setUserInfo } from '../../../stores/auth-slice';
+import { ProxyStatusEnum } from '../../../types/http/proxy/ProxyStatus';
 import styles from './index.less';
+import type { LoginFormValues } from './type';
 
 const Login: React.FC = () => {
-  const [type, setType] = useState<string>('account');
-
+  const dispatch = useAppDispatch();
   const intl = useIntl();
+  const history = useHistory();
 
-  const handleSubmit = (values: any) => {
-    console.log(values);
+  const handleSubmit = (values: LoginFormValues) => {
+    LoginProxy({
+      email: values.email,
+      password: values.password,
+    })
+      .then((res) => {
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'Login fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          message.success(defaultLoginSuccessMessage);
+          saveDataLocal('user_id', res.data.userInfo.id);
+          saveDataLocal('user_info', JSON.stringify(res.data.userInfo));
+          saveDataLocal('access_token', res.data.accessToken);
+          saveDataLocal('refresh_token', res.data.refreshToken);
+          dispatch(setUserInfo(res?.data.userInfo));
+          dispatch(setAuthenticated(true));
+          history.push('/');
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err.message ?? 'Login fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      })
+      .finally(() => {});
   };
 
   return (
@@ -38,52 +81,34 @@ const Login: React.FC = () => {
             <FormattedMessage
               key="loginWith"
               id="pages.login.loginWith"
-              defaultMessage="其他登录方式"
+              defaultMessage="Login With"
             />,
             <AlipayCircleOutlined key="AlipayCircleOutlined" className={styles.icon} />,
             <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={styles.icon} />,
             <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.icon} />,
           ]}
-          onFinish={(values: any) => {
-            handleSubmit(values);
-            return Promise.resolve();
+          onFinish={async (values) => {
+            await handleSubmit(values as LoginFormValues);
           }}
         >
-          <Tabs activeKey={type} onChange={setType}>
-            <Tabs.TabPane
-              key="account"
-              tab={intl.formatMessage({
-                id: 'pages.login.accountLogin.tab',
-                defaultMessage: '账户密码登录',
-              })}
-            />
-            <Tabs.TabPane
-              key="mobile"
-              tab={intl.formatMessage({
-                id: 'pages.login.phoneLogin.tab',
-                defaultMessage: '手机号登录',
-              })}
-            />
-          </Tabs>
-
           <>
             <ProFormText
-              name="username"
+              name="email"
               fieldProps={{
                 size: 'large',
                 prefix: <UserOutlined className={styles.prefixIcon} />,
               }}
               placeholder={intl.formatMessage({
-                id: 'pages.login.username.placeholder',
-                defaultMessage: 'admin or user',
+                id: 'pages.login.email.placeholder',
+                defaultMessage: 'email',
               })}
               rules={[
                 {
                   required: true,
                   message: (
                     <FormattedMessage
-                      id="pages.login.username.required"
-                      defaultMessage="Username is required!"
+                      id="pages.login.email.required"
+                      defaultMessage="Email is required!"
                     />
                   ),
                 },
@@ -97,7 +122,7 @@ const Login: React.FC = () => {
               }}
               placeholder={intl.formatMessage({
                 id: 'pages.login.password.placeholder',
-                defaultMessage: 'ant.design',
+                defaultMessage: 'password',
               })}
               rules={[
                 {
@@ -112,7 +137,6 @@ const Login: React.FC = () => {
               ]}
             />
           </>
-
           <div
             style={{
               marginBottom: 24,

@@ -1,12 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { RootState } from "..";
-import { getDataLocal } from "../../helpers/localStorage";
+import { createSlice } from '@reduxjs/toolkit';
+import type { RootState } from '..';
+import { getDataLocal } from '../../helpers/localStorage';
 
-const user_id = getDataLocal("user_id");
-const user_info = getDataLocal("user_info");
+const user_id = getDataLocal('user_id');
+const user_info = getDataLocal('user_info');
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState: {
     isAuthenticated: user_id ? true : false,
     user: user_info ? JSON.parse(user_info) : null,

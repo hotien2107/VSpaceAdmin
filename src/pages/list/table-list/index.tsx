@@ -1,16 +1,16 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer } from 'antd';
-import React, { useState, useRef } from 'react';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import type { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
+import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import { Button, Drawer, Input, message, Upload } from 'antd';
+import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-import { rule, addRule, updateRule, removeRule } from './service';
-import type { TableListItem, TableListPagination } from './data';
+import { addRule, rule, updateRule } from './service';
+import type { TableListItem, TableListPagination } from './type';
 /**
  * 添加节点
  *
@@ -18,16 +18,16 @@ import type { TableListItem, TableListPagination } from './data';
  */
 
 const handleAdd = async (fields: TableListItem) => {
-  const hide = message.loading('Thêm vào');
+  const hide = message.loading('loading');
 
   try {
     await addRule({ ...fields });
     hide();
-    message.success('Thêm thành công');
+    message.success('Success');
     return true;
   } catch (error) {
     hide();
-    message.error('Không thêm được, vui lòng thử lại!');
+    message.error('Fails');
     return false;
   }
 };
@@ -38,7 +38,7 @@ const handleAdd = async (fields: TableListItem) => {
  */
 
 const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
-  const hide = message.loading('Cấu hình');
+  const hide = message.loading('loading');
 
   try {
     await updateRule({
@@ -46,11 +46,11 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) =
       ...fields,
     });
     hide();
-    message.success('Đã cấu hình thành công');
+    message.success('Success');
     return true;
   } catch (error) {
     hide();
-    message.error('Cấu hình không thành công, vui lòng thử lại!');
+    message.error('Fail');
     return false;
   }
 };
@@ -61,19 +61,19 @@ const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) =
  */
 
 const handleRemove = async (selectedRows: TableListItem[]) => {
-  const hide = message.loading('xóa');
+  const hide = message.loading('loading');
   if (!selectedRows) return true;
 
   try {
-    await removeRule({
-      key: selectedRows.map((row) => row.key),
-    });
+    // await removeRule({
+    //   id: selectedRows.map((row) => row.id),
+    // });
     hide();
-    message.success('Đã xóa thành công, sẽ sớm được làm mới');
+    message.success('Success');
     return true;
   } catch (error) {
     hide();
-    message.error('Xóa không thành công, vui lòng thử lại');
+    message.error('Failed');
     return false;
   }
 };
@@ -88,13 +88,16 @@ const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
-  // Cấu hình quốc tế hóa
+  const [isModel, setIsModel] = useState<string>('');
+
+  console.log(isModel);
+
+  /** 国际化配置 */
 
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: 'Tên quy tắc',
+      title: 'Name Model',
       dataIndex: 'name',
-      tip: 'Tên quy tắc là duy nhất',
       render: (dom, entity) => {
         return (
           <a
@@ -109,42 +112,12 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: 'Diễn tả',
+      title: 'Link model',
       dataIndex: 'desc',
       valueType: 'textarea',
     },
     {
-      title: 'Số lượng cuộc gọi dịch vụ',
-      dataIndex: 'callNo',
-      sorter: true,
-      hideInForm: true,
-      renderText: (val: string) => `${val}万`,
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      hideInForm: true,
-      valueEnum: {
-        0: {
-          text: 'Mặc định',
-          status: 'Default',
-        },
-        1: {
-          text: 'Đang xử lý',
-          status: 'Processing',
-        },
-        2: {
-          text: 'Thành công',
-          status: 'Success',
-        },
-        3: {
-          text: 'Thất bại',
-          status: 'Error',
-        },
-      },
-    },
-    {
-      title: 'Thời gian cập nhật',
+      title: 'Date',
       sorter: true,
       dataIndex: 'updatedAt',
       valueType: 'dateTime',
@@ -163,7 +136,7 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: 'Tuỳ chọn',
+      title: 'Option',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
@@ -174,19 +147,36 @@ const TableList: React.FC = () => {
             setCurrentRow(record);
           }}
         >
-          Cấu hình
-        </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          Đăng ký thông báo
+          Edit
         </a>,
       ],
     },
   ];
 
+  const handleModelChange = (info: any) => {
+    const hide = message.loading('loading');
+
+    if (info.file.status === 'uploading') {
+      hide();
+      message.success('loading');
+    }
+    if (info.file.status === 'done') {
+      hide();
+      setIsModel(info.file.response.data.url);
+      message.success('Success');
+      return true;
+    }
+    if (info.file.status === 'error') {
+      hide();
+      message.error('Failed');
+      return false;
+    }
+  };
+
   return (
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
-        headerTitle="Mẫu yêu cầu"
+        headerTitle="Model List"
         actionRef={actionRef}
         rowKey="key"
         search={{
@@ -200,7 +190,7 @@ const TableList: React.FC = () => {
               handleModalVisible(true);
             }}
           >
-            <PlusOutlined /> Mới
+            <PlusOutlined /> Create
           </Button>,
         ]}
         request={rule}
@@ -215,19 +205,7 @@ const TableList: React.FC = () => {
         <FooterToolbar
           extra={
             <div>
-              Đã chọn{' '}
-              <a
-                style={{
-                  fontWeight: 600,
-                }}
-              >
-                {selectedRowsState.length}
-              </a>{' '}
-              Mục &nbsp;&nbsp;
-              <span>
-                Tổng số cuộc gọi dịch vụ{' '}
-                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
-              </span>
+              <span>Are you sure want to delete this model?</span>
             </div>
           }
         >
@@ -238,17 +216,18 @@ const TableList: React.FC = () => {
               actionRef.current?.reloadAndRest?.();
             }}
           >
-            Xóa hàng loạt
+            Yes
           </Button>
-          <Button type="primary">Phê duyệt hàng loạt</Button>
+          <Button type="primary">No</Button>
         </FooterToolbar>
       )}
       <ModalForm
-        title="Quy tắc mới"
+        title="Create model"
         width="400px"
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
+          console.log(value);
           const success = await handleAdd(value as TableListItem);
           if (success) {
             handleModalVisible(false);
@@ -262,13 +241,25 @@ const TableList: React.FC = () => {
           rules={[
             {
               required: true,
-              message: 'Tên quy tắc là bắt buộc',
+              message: 'Name is required',
             },
           ]}
           width="md"
           name="name"
+          placeholder="Enter name..."
+          label="Name model"
         />
-        <ProFormTextArea width="md" name="desc" />
+        <Upload
+          name="avatar"
+          listType="picture"
+          showUploadList={false}
+          action={`${process.env.REACT_APP_BASE_URL}/uploads/model`}
+          onChange={handleModelChange}
+          headers={{ Authorization: `Bearer ${localStorage.getItem('token')}` }}
+          accept=".glb"
+        >
+          <Button icon={<UploadOutlined />}>Click to upload model</Button>
+        </Upload>
       </ModalForm>
       <UpdateForm
         onSubmit={async (value) => {
