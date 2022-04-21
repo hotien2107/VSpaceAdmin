@@ -8,7 +8,7 @@ export async function login(params: LoginParamsInterface) {
     URL,
     params
   );
-
+  console.log(response);
   return response.data;
 }
 
