@@ -52,8 +52,8 @@ export async function getInitialState(): Promise<{
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   return {
-    childrenRender: (x) => {
-      return <Provider store={store}>{x}</Provider>;
+    childrenRender: (children) => {
+      return <Provider store={store}>{children}</Provider>;
     },
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
