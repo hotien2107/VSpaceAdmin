@@ -52,6 +52,7 @@ const Login: React.FC = () => {
           dispatch(setUserInfo(res?.data.userInfo));
           dispatch(setAuthenticated(true));
           history.push('/');
+          console.log("Hihi");
         }
       })
       .catch((err) => {
