@@ -1,17 +1,29 @@
 import type { UserInterface } from '../../../../types/user';
 
-export interface ProfileProxyTransformInterface {
-  id: string;
-  email: string;
-  name: string;
-  phone?: string;
-  avatar?: string;
-  provider: 'local' | 'google' | 'facebook';
-  externalId?: string;
-  status: 'active' | 'inactive' | 'blocked';
-  createdAt: string;
+export interface UserListProxyTransformInterface {
+  users: {
+    id: number;
+    name: string;
+    email: string;
+    avatar?: string;
+    phone?: string;
+    status: 'active' | 'inactive' | 'blocked';
+    provider: 'local' | 'google' | 'facebook';
+    externalId?: string;
+    createdAt: string;
+  }[];
+  pagination: {
+    count: number;
+    page: number;
+    totalCount: number;
+  };
 }
 
-export interface ProfileProxyResponseInterface {
-  userInfo: UserInterface;
+export interface UserListProxyResponseInterface {
+  userList: UserInterface[];
+  paginaton?: {
+    count: number;
+    page: number;
+    totalCount: number;
+  };
 }
