@@ -1,29 +1,39 @@
-import { ProxyStatusEnum } from '../../../../types/http/proxy/ProxyStatus';
+import { getUserList } from '@/services/api/users/get-users';
 import type { ProxyFuncType } from '../../../../types/http/proxy/ProxyFuncType';
-import { getProfile } from '../../../api/users/get-profile';
-import type { ProfileProxyResponseInterface, ProfileProxyTransformInterface } from './types';
+import { ProxyStatusEnum } from '../../../../types/http/proxy/ProxyStatus';
+import type { UserListProxyResponseInterface, UserListProxyTransformInterface } from './types';
 
-const profileTransform = (res: ProfileProxyTransformInterface): ProfileProxyResponseInterface => {
+const userListTransform = (
+  res: UserListProxyTransformInterface,
+): UserListProxyResponseInterface => {
   const transform = {
-    userInfo: {
-      id: res?.id ?? '',
-      email: res?.email ?? '',
-      name: res?.name ?? '',
-      phone: res?.phone ?? '',
-      avatar: res?.avatar ?? '',
-      provider: res?.provider ?? '',
-      externalId: res?.externalId ?? '',
-      status: res?.status ?? '',
-      createdAt: res?.createdAt ?? '',
+    userList: res.users.map((user) => {
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        avatar: user.avatar,
+        provider: user.provider,
+        externalId: user.externalId,
+        status: user.status,
+        createdAt: user.createdAt,
+      };
+    }),
+    pagination: {
+      count: res.pagination.count,
+      page: res.pagination.page,
+      totalCount: res.pagination.totalCount,
     },
   };
+
   return transform;
 };
 
-const ProfileProxy = async (): Promise<ProxyFuncType<ProfileProxyResponseInterface>> => {
-  const res = await getProfile();
+const UserListProxy = async (): Promise<ProxyFuncType<UserListProxyResponseInterface>> => {
+  const res = await getUserList();
 
-  if (res?.code) {
+  if (res?.code && res.code !== 200) {
     return {
       status: ProxyStatusEnum.FAIL,
       message: res.message,
@@ -32,11 +42,11 @@ const ProfileProxy = async (): Promise<ProxyFuncType<ProfileProxyResponseInterfa
     };
   }
 
-  const profileRespTransformed = profileTransform(res);
+  const userListRespTransformed = userListTransform(res.data);
   return {
     status: ProxyStatusEnum.SUCCESS,
-    data: profileRespTransformed,
+    data: userListRespTransformed,
   };
 };
 
-export default ProfileProxy;
+export default UserListProxy;

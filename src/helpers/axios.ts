@@ -16,8 +16,10 @@ export interface ResponseInterface<T = any> {
   data?: T;
 }
 
+const REACT_APP_BASE_URL='https://api.vispace.tech/api/v1';
+
 const HttpClient = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL,
+  baseURL: REACT_APP_BASE_URL,
   timeout: 3000,
   headers: {
     [HTTP_HEADER_KEY.CONTENT_TYPE]: HTTP_HEADER_VALUE.APPLICATION_JSON,

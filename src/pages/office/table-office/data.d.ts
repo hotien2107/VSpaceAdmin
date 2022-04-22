@@ -7,7 +7,7 @@ export type TableUsersItem = {
   status: 'active' | 'inactive' | 'blocked';
   provider: 'local' | 'google' | 'facebook';
   externalId?: string;
-  createdAt: string;
+  createdAt: Date;
 };
 
 export type TableUsersPagination = {

@@ -9,8 +9,7 @@ import {
 import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
 import { message } from 'antd';
 import React from 'react';
-import { useHistory } from 'react-router';
-import { FormattedMessage, SelectLang, useIntl } from 'umi';
+import { FormattedMessage, history, SelectLang, useIntl, useModel } from 'umi';
 import { saveDataLocal } from '../../../helpers/localStorage';
 import LoginProxy from '../../../services/proxy/auth/login';
 import { useAppDispatch } from '../../../stores';
@@ -22,7 +21,7 @@ import type { LoginFormValues } from './type';
 const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const intl = useIntl();
-  const history = useHistory();
+  const { initialState, setInitialState } = useModel('@@initialState');
 
   const handleSubmit = (values: LoginFormValues) => {
     LoginProxy({
@@ -51,6 +50,12 @@ const Login: React.FC = () => {
           saveDataLocal('refresh_token', res.data.refreshToken);
           dispatch(setUserInfo(res?.data.userInfo));
           dispatch(setAuthenticated(true));
+          setInitialState(() => ({
+            accessToken: initialState?.accessToken,
+            refreshToken: initialState?.refreshToken,
+            isAuthenticated: true,
+            user: res.data.userInfo,
+          }));
           history.push('/');
         }
       })

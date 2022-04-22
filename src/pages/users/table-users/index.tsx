@@ -1,3 +1,5 @@
+import UserListProxy from '@/services/proxy/users/get-users';
+import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
@@ -5,13 +7,14 @@ import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Drawer, Input } from 'antd';
-import React, { useRef, useState } from 'react';
+import { Button, Drawer, Input, message } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useIntl } from 'umi';
 import UpdateForm from './components/UpdateForm';
 import type { TableUsersItem, TableUsersPagination } from './data';
-import { users } from './service';
 
 const TableUsers: React.FC = () => {
+  const [userList, setUserList] = useState<TableUsersItem[]>([]);
   //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   //  Cửa sổ cập nhật phân phối bật lên
@@ -21,7 +24,38 @@ const TableUsers: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableUsersItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableUsersItem[]>([]);
-  // Cấu hình quốc tế hóa
+
+  const intl = useIntl();
+
+  useEffect(() => {
+    UserListProxy()
+      .then((res) => {
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'get users fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          setUserList(res?.data?.userList ?? []);
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err ?? 'get users fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      });
+  }, [intl]);
 
   const columns: ProColumns<TableUsersItem>[] = [
     {
@@ -121,7 +155,7 @@ const TableUsers: React.FC = () => {
       <ProTable<TableUsersItem, TableUsersPagination>
         headerTitle="Mẫu yêu cầu"
         actionRef={actionRef}
-        rowKey="key"
+        rowKey="id"
         search={{
           labelWidth: 120,
         }}
@@ -136,7 +170,7 @@ const TableUsers: React.FC = () => {
             <PlusOutlined /> Mới
           </Button>,
         ]}
-        request={users}
+        dataSource={userList}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {

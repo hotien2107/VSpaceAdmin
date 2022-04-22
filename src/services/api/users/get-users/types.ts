@@ -1,5 +1,15 @@
 export interface GetUsersApiResponseInterface {
-  userList: UserInterface[];
+  data: {
+    users: UserInterface[];
+    pagination: {
+      count: number;
+      page: number;
+      totalCount: number;
+    };
+  };
+  code?: number;
+  message?: string;
+  errors?: string[];
 }
 
 interface UserInterface {
