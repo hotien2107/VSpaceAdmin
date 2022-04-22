@@ -3,6 +3,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import { Card, Alert, Typography } from 'antd';
 import { useIntl, FormattedMessage } from 'umi';
 import styles from './Welcome.less';
+import { useSelector } from 'react-redux';
 
 const CodePreview: React.FC = ({ children }) => (
   <pre className={styles.pre}>
@@ -13,6 +14,8 @@ const CodePreview: React.FC = ({ children }) => (
 );
 
 export default (): React.ReactNode => {
+  const { isAuthenticated } = useSelector((state: any) => state.auth);
+  console.log(isAuthenticated);
   const intl = useIntl();
   return (
     <PageContainer>
