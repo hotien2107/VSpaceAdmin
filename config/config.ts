@@ -53,6 +53,40 @@ export default defineConfig({
       ],
     },
     {
+      path: '/model',
+      icon: 'table',
+      name: 'Model',
+      routes: [
+        {
+          path: '/model',
+          redirect: '/model/table-model',
+        },
+        {
+          name: 'Model Table',
+          icon: 'smile',
+          path: '/model/table-model',
+          component: './model/table-model',
+        },
+      ],
+    },
+    {
+      path: '/office',
+      icon: 'table',
+      name: 'Office',
+      routes: [
+        {
+          path: '/office',
+          redirect: '/office/table-office',
+        },
+        {
+          name: 'Office Table',
+          icon: 'smile',
+          path: '/office/table-office',
+          component: './office/table-office',
+        },
+      ],
+    },
+    {
       path: '/user',
       layout: false,
       routes: [

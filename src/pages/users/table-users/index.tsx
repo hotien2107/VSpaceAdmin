@@ -175,6 +175,7 @@ const TableUsers: React.FC = () => {
         rowSelection={{
           onChange: (_, selectedRows) => {
             setSelectedRows(selectedRows);
+            console.log(selectedRows);
           },
         }}
       />

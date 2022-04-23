@@ -1,39 +1,35 @@
 import type { Request, Response } from 'express';
 import { parse } from 'url';
-import type { TableUsersItem, TableUsersParams } from './data.d';
+import type { TableListItem, TableListParams } from './data.d';
 
 // mock tableUsersDataSource
-const genUsers = (current: number, pageSize: number) => {
-  const tableUsersDataSource: TableUsersItem[] = [];
+const genModel = (current: number, pageSize: number) => {
+  const tableModelDataSource: TableListItem[] = [];
 
   for (let i = 0; i < pageSize; i += 1) {
     const index = (current - 1) * 10 + i;
-    tableUsersDataSource.push({
+    tableModelDataSource.push({
       id: index,
-      name: `Triều ${index}`,
-      email: 'vominhtrieu@gmail.com',
-      avatar: '',
-      phone: '0123456789',
-      status: 'active',
-      provider: 'local',
+      name: `Model ${index}`,
+      path: 'hiu',
       createdAt: new Date(),
     });
   }
-  tableUsersDataSource.reverse();
-  return tableUsersDataSource;
+  tableModelDataSource.reverse();
+  return tableModelDataSource;
 };
 
-const tableUsersDataSource = genUsers(1, 100);
+const tableModelDataSource = genModel(1, 100);
 
-function getUsers(req: Request, res: Response, u: string) {
+function getModel(req: Request, res: Response, u: string) {
   let realUrl = u;
   if (!realUrl || Object.prototype.toString.call(realUrl) !== '[object String]') {
     realUrl = req.url;
   }
   const { current = 1, pageSize = 10 } = req.query;
-  const params = parse(realUrl, true).query as unknown as TableUsersParams;
+  const params = parse(realUrl, true).query as unknown as TableListParams;
 
-  let dataSource = [...tableUsersDataSource].slice(
+  let dataSource = [...tableModelDataSource].slice(
     ((current as number) - 1) * (pageSize as number),
     (current as number) * (pageSize as number),
   );
@@ -87,7 +83,7 @@ function getUsers(req: Request, res: Response, u: string) {
 
   const result = {
     data: dataSource,
-    total: tableUsersDataSource.length,
+    total: tableModelDataSource.length,
     success: true,
     pageSize: finalPageSize,
     current: parseInt(`${params.currentPage}`, 10) || 1,
@@ -97,5 +93,5 @@ function getUsers(req: Request, res: Response, u: string) {
 }
 
 export default {
-  'GET /api/users': getUsers,
+  'GET /api/items': getModel,
 };

@@ -1,103 +1,37 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, message, Input, Drawer } from 'antd';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
-import type { FormValueType } from './components/UpdateForm';
-import UpdateForm from './components/UpdateForm';
-import { rule, addRule, updateRule, removeRule } from './service';
-import type { TableListItem, TableListPagination } from './type';
-import { Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-/**
- * 添加节点
- *
- * @param fields
- */
+import type { TableListItem, TableListPagination, OfficeDetail } from './data.d';
+import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
+import { useIntl } from 'umi';
+import CreateOfficeProxy from '@/services/proxy/offices/create-office';
+import GetOfficeListProxy from '@/services/proxy/offices/office-list';
+import UpdateOfficeProxy from '@/services/proxy/offices/update-office';
+import OfficeDetailProxy from '@/services/proxy/offices/office-detail';
 
-const handleAdd = async (fields: TableListItem) => {
-  const hide = message.loading('loading');
-
-  try {
-    await addRule({ ...fields });
-    hide();
-    message.success('Success');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Fails');
-    return false;
-  }
-};
-/**
- * 更新节点
- *
- * @param fields
- */
-
-const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
-  const hide = message.loading('loading');
-
-  try {
-    await updateRule({
-      ...currentRow,
-      ...fields,
-    });
-    hide();
-    message.success('Success');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Fail');
-    return false;
-  }
-};
-/**
- * 删除节点
- *
- * @param selectedRows
- */
-
-const handleRemove = async (selectedRows: TableListItem[]) => {
-  const hide = message.loading('loading');
-  if (!selectedRows) return true;
-
-  try {
-    // await removeRule({
-    //   id: selectedRows.map((row) => row.id),
-    // });
-    hide();
-    message.success('Success');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Failed');
-    return false;
-  }
-};
-
-const TableList: React.FC = () => {
-  /** 新建窗口的弹窗 */
+const OfficeTable: React.FC = () => {
+  const [itemList, setItemList] = useState<TableListItem[]>([]);
+  //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  /** 分布更新窗口的弹窗 */
+  //  Cửa sổ cập nhật phân phối bật lên
 
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
-  const [isModel, setIsModel] = useState<string>("");
-
-
-  /** 国际化配置 */
+  const [currentOffice, setCurrentOffice] = useState<OfficeDetail>();
+  const intl = useIntl();
 
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: 'Name Model',
+      title: 'Name Office',
       dataIndex: 'name',
       render: (dom, entity) => {
         return (
@@ -113,14 +47,14 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: 'Link model',
-      dataIndex: 'desc',
-      valueType: 'textarea',
+      title: 'Create User',
+      dataIndex: 'nameUser',
+      renderText: (text: string) => <a>{text}</a>,
     },
     {
       title: 'Date',
       sorter: true,
-      dataIndex: 'updatedAt',
+      dataIndex: 'createdAt',
       valueType: 'dateTime',
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
         const status = form.getFieldValue('status');
@@ -129,8 +63,72 @@ const TableList: React.FC = () => {
           return false;
         }
 
-        if (`${status}` === '3') {
-          return <Input {...rest} placeholder="请输入异常原因！" />;
+        if (`${status}` === '2') {
+          return <Input {...rest} placeholder="" />;
+        }
+
+        return defaultRender(item);
+      },
+    },
+    {
+      title: 'Option',
+      dataIndex: 'option',
+      valueType: 'option',
+      render: (_, record) => [
+        <a
+          key="config"
+          onClick={() => {
+            GetOffice(record.id);
+            setShowDetail(true);
+            setCurrentRow(record);
+          }}
+        >
+          Detail
+        </a>,
+        <a
+          key="config"
+          onClick={() => {
+            handleUpdateModalVisible(true);
+            setCurrentRow(record);
+          }}
+        >
+          Update
+        </a>,
+        <a
+          key="view"
+          onClick={() => {
+          }}
+        >
+          Block
+        </a>,
+      ],
+    },
+  ];
+
+  const columnDetail: ProColumns<OfficeDetail>[] = [
+    {
+      title: 'Name Office',
+      dataIndex: 'name',
+    },
+    {
+      title: 'Invitation Code',
+      dataIndex: 'invitationCode',
+      renderText: (text: string) => <a>{text}</a>,
+    },
+    {
+      title: 'Date',
+      sorter: true,
+      dataIndex: 'createdAt',
+      valueType: 'dateTime',
+      renderFormItem: (item, { defaultRender, ...rest }, form) => {
+        const status = form.getFieldValue('status');
+
+        if (`${status}` === '0') {
+          return false;
+        }
+
+        if (`${status}` === '2') {
+          return <Input {...rest} placeholder="" />;
         }
 
         return defaultRender(item);
@@ -148,39 +146,168 @@ const TableList: React.FC = () => {
             setCurrentRow(record);
           }}
         >
-          Edit
-        </a>
+          Update
+        </a>,
+        <a
+          key="view"
+          onClick={() => {
+          }}
+        >
+          Block
+        </a>,
       ],
     },
   ];
 
-  
-  const handleModelChange = (info: any) => {
-    const hide = message.loading('loading');
 
-      if (info.file.status === "uploading") {
-        hide();
-        message.success('loading');
-      }
-      if (info.file.status === "done") {
-        hide();
-        setIsModel(info.file.response.data.url);
-        message.success('Success');
-        return true;
-      }
-      if (info.file.status === "error") {
-        hide();
-        message.error('Failed');
-        return false;
-      }
+  const handleCreate = (data: string) => {
+    CreateOfficeProxy({
+      name: data,
+    })
+      .then((res) => {
+        console.log(res)
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'create item fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err.message ?? 'create item fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      })
+      .finally(() => { });
   };
+
+  const UpdateOffice = (id: number, name: string) => {
+    UpdateOfficeProxy({
+      id: id,
+      name: name,
+    })
+      .then((res) => {
+        console.log(res)
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'delete item fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err.message ?? 'delete item fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      })
+      .finally(() => { });
+  };
+
+  const GetOffice = (id: number) => {
+    OfficeDetailProxy({
+      id: id
+    })
+      .then((res) => {
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'get item fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          setCurrentOffice(res?.data.office);
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err.message ?? 'get item fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      })
+      .finally(() => { });
+  };
+
+  useEffect(() => {
+    GetOfficeListProxy({ page: 1, size: 10 })
+      .then((res) => {
+        console.log(res.status);
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'get items fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          let list: Array<TableListItem> = [];
+          res?.data?.officeList.map((item) => {
+            let tmp: TableListItem = {
+              id: item.id,
+              name: item.name,
+              nameUser: item.createdBy.name,
+              createdAt: item.createdAt,
+            }
+            list.push(tmp);
+          })
+          setItemList(list);
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err ?? 'get items fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      });
+  }, [intl]);
+
 
   return (
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
-        headerTitle="Model List"
+        headerTitle="Office Table"
         actionRef={actionRef}
-        rowKey="key"
+        rowKey="id"
         search={{
           labelWidth: 120,
         }}
@@ -195,11 +322,12 @@ const TableList: React.FC = () => {
             <PlusOutlined /> Create
           </Button>,
         ]}
-        request={rule}
+        dataSource={itemList}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
             setSelectedRows(selectedRows);
+            console.log(selectedRows);
           },
         }}
       />
@@ -209,13 +337,16 @@ const TableList: React.FC = () => {
             <div>
               <span>
                 Are you sure want to delete this model?
+
               </span>
             </div>
           }
         >
           <Button
             onClick={async () => {
-              await handleRemove(selectedRowsState);
+              selectedRowsState.map((item) => {
+                // deleteItem(item.id);
+              })
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -231,14 +362,7 @@ const TableList: React.FC = () => {
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          console.log(value);
-          const success = await handleAdd(value as TableListItem);
-          if (success) {
-            handleModalVisible(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+          handleCreate(value.name);
         }}
       >
         <ProFormText
@@ -251,42 +375,32 @@ const TableList: React.FC = () => {
           width="md"
           name="name"
           placeholder="Enter name..."
-          label="Name model"
+          label="Name office"
         />
-        <Upload
-                name="avatar"
-                listType="picture"
-                showUploadList={false}
-                action={`${process.env.REACT_APP_BASE_URL}/uploads/model`}
-                onChange={handleModelChange}
-                headers={{Authorization: `Bearer ${localStorage.getItem("token")}`}}
-                accept=".glb"
-            >
-               <Button icon={<UploadOutlined />}>Click to upload model</Button>
-            </Upload>
-
       </ModalForm>
-      <UpdateForm
-        onSubmit={async (value) => {
-          const success = await handleUpdate(value, currentRow);
-
-          if (success) {
-            handleUpdateModalVisible(false);
-            setCurrentRow(undefined);
-
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+      <ModalForm
+        title="Update office"
+        width="400px"
+        visible={updateModalVisible}
+        onVisibleChange={handleUpdateModalVisible}
+        onFinish={async (value) => {
+          UpdateOffice(currentRow?.id, value.name);
         }}
-        onCancel={() => {
-          handleUpdateModalVisible(false);
-          setCurrentRow(undefined);
-        }}
-        updateModalVisible={updateModalVisible}
-        values={currentRow || {}}
-      />
-
+      >
+        <ProFormText
+          rules={[
+            {
+              required: true,
+              message: 'Name is required',
+            },
+          ]}
+          width="md"
+          name="name"
+          placeholder="Enter name..."
+          initialValue={currentRow?.name}
+          label="Name office"
+        />
+      </ModalForm>
       <Drawer
         width={600}
         visible={showDetail}
@@ -296,22 +410,43 @@ const TableList: React.FC = () => {
         }}
         closable={false}
       >
-        {currentRow?.name && (
-          <ProDescriptions<TableListItem>
-            column={2}
-            title={currentRow?.name}
-            request={async () => ({
-              data: currentRow || {},
-            })}
-            params={{
-              id: currentRow?.name,
-            }}
-            columns={columns as ProDescriptionsItemProps<TableListItem>[]}
-          />
+        {currentOffice?.name && (
+          <>
+            <ProDescriptions<OfficeDetail>
+              column={1}
+              title={currentOffice?.name}
+              request={async () => ({
+                data: currentOffice || {},
+              })}
+              params={{
+                id: currentOffice?.name,
+              }}
+              columns={columnDetail as ProDescriptionsItemProps<OfficeDetail>[]}
+            />
+            <p>Create By: {currentOffice.createdBy.name}</p>
+            <p>Office Item:</p>
+            <p>Office Member:</p>
+            <table style={{ width: "100%" }}>
+              <tr style={{ border: "1px solid black" }}>
+                <th style={{ border: "1px solid black" }}>Name</th>
+                <th style={{ border: "1px solid black" }}>Status</th>
+                <th style={{ border: "1px solid black" }}>Position</th>
+                <th style={{ border: "1px solid black" }}>Rotation</th>
+              </tr>
+              {currentOffice.officeMembers.map((item, index) => (
+                <tr style={{ border: "1px solid black" }} key={index}>
+                  <td style={{ border: "1px solid black", textAlign: "center" }}>{item.member.name}</td>
+                  <td style={{ border: "1px solid black", textAlign: "center" }}>{item.onlineStatus}</td>
+                  <td style={{ border: "1px solid black", textAlign: "center" }}>({item.transform.position.x}, {item.transform.position.y}, {item.transform.position.z})</td>
+                  <td style={{ border: "1px solid black", textAlign: "center" }}>({item.transform.rotation.x}, {item.transform.rotation.y}, {item.transform.rotation.z})</td>
+                </tr>
+              ))}
+            </table>
+          </>
         )}
       </Drawer>
     </PageContainer>
   );
 };
 
-export default TableList;
+export default OfficeTable;

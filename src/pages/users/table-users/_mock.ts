@@ -16,7 +16,7 @@ const genUsers = (current: number, pageSize: number) => {
       phone: '0123456789',
       status: 'active',
       provider: 'local',
-      createdAt: new Date(),
+      createdAt: new Date().toDateString(),
     });
   }
   tableUsersDataSource.reverse();

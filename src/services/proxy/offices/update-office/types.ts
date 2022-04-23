@@ -1,11 +1,16 @@
-export type TableListItem = {
+export interface UpdateOfficeProxyParamsInterface {
   id: number;
   name: string;
-  nameUser: string;
-  createdAt: string;
-};
+}
+export interface UpdateOfficeProxyTransformInterface {
+  office: UpdateOfficeInterface;
+}
 
-export type OfficeDetail = {
+export interface UpdateOfficeProxyResponseInterface {
+  office: UpdateOfficeInterface;
+}
+
+interface UpdateOfficeInterface {
   id: number;
   name: string;
   invitationCode: string;
@@ -19,7 +24,7 @@ export type OfficeDetail = {
   createdAt: string;
 }
 
-type OfficeMembersInterface = {
+interface OfficeMembersInterface {
   id: number;
   officeId: number;
   member: {
@@ -41,26 +46,3 @@ type OfficeMembersInterface = {
     };
   };
 }
-
-
-export type TableListPagination = {
-  total: number;
-  pageSize: number;
-  current: number;
-};
-
-export type TableListData = {
-  list: TableListItem[];
-  pagination: Partial<TableListPagination>;
-};
-
-export type TableListParams = {
-  status?: string;
-  name?: string;
-  desc?: string;
-  key?: number;
-  pageSize?: number;
-  currentPage?: number;
-  filter?: Record<string, any[]>;
-  sorter?: Record<string, any>;
-};
