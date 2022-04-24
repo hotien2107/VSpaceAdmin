@@ -64,65 +64,65 @@ const TableList: React.FC = () => {
       .then((res) => {
         console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
+          const defaultItemFailureMessage = intl.formatMessage({
+            id: 'pages.delete.fail',
             defaultMessage: res.message ?? 'delete item fail',
           });
-          message.error(defaultLoginFailureMessage);
+          message.error(defaultItemFailureMessage);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
+          const defaultItemSuccessMessage = intl.formatMessage({
+            id: 'pages.delete.success',
             defaultMessage: 'Success!',
           });
-          message.success(defaultLoginSuccessMessage);
+          message.success(defaultItemSuccessMessage);
           setCountGetItemList(countGetItemList + 1);
         }
       })
       .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
+        const defaultItemFailureMessage = intl.formatMessage({
+          id: 'pages.delete.failure',
           defaultMessage: err.message ?? 'delete item fail',
         });
-        message.error(defaultLoginFailureMessage);
+        message.error(defaultItemFailureMessage);
       })
       .finally(() => {});
   };
 
-  const GetItem = (id: number) => {
-    GetItemProxy({
-      id: id,
-    })
-      .then((res) => {
-        console.log(res);
-        if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
-            defaultMessage: res.message ?? 'get item fail',
-          });
-          message.error(defaultLoginFailureMessage);
-          return;
-        }
+  // const GetItem = (id: number) => {
+  //   GetItemProxy({
+  //     id: id,
+  //   })
+  //     .then((res) => {
+  //       console.log(res);
+  //       if (res.status === ProxyStatusEnum.FAIL) {
+  //         const defaultItemFailureMessage = intl.formatMessage({
+  //           id: 'pages.Item.failure',
+  //           defaultMessage: res.message ?? 'get item fail',
+  //         });
+  //         message.error(defaultItemFailureMessage);
+  //         return;
+  //       }
 
-        if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
-            defaultMessage: 'Success!',
-          });
-          message.success(defaultLoginSuccessMessage);
-        }
-      })
-      .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
-          defaultMessage: err.message ?? 'get item fail',
-        });
-        message.error(defaultLoginFailureMessage);
-      })
-      .finally(() => {});
-  };
+  //       if (res.status === ProxyStatusEnum.SUCCESS) {
+  //         const defaultItemSuccessMessage = intl.formatMessage({
+  //           id: 'pages.Item.success',
+  //           defaultMessage: 'Success!',
+  //         });
+  //         message.success(defaultItemSuccessMessage);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       const defaultItemFailureMessage = intl.formatMessage({
+  //         id: 'pages.Item.failure',
+  //         defaultMessage: err.message ?? 'get item fail',
+  //       });
+  //       message.error(defaultItemFailureMessage);
+  //     })
+  //     .finally(() => {});
+  // };
 
   const columns: ProColumns<TableListItem>[] = [
     {
@@ -188,29 +188,28 @@ const TableList: React.FC = () => {
       .then((res) => {
         console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
+          const defaultItemFailureMessage = intl.formatMessage({
+            id: 'pages.load.fail',
             defaultMessage: res.message ?? 'get items fail',
           });
-          message.error(defaultLoginFailureMessage);
+          message.error(defaultItemFailureMessage);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
+          const defaultItemSuccessMessage = intl.formatMessage({
+            id: 'pages.load.success',
             defaultMessage: 'Success!',
           });
           setItemList(res?.data?.data?.items ?? []);
-          message.success(defaultLoginSuccessMessage);
         }
       })
       .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
+        const defaultItemFailureMessage = intl.formatMessage({
+          id: 'pages.load.fail',
           defaultMessage: err ?? 'get items fail',
         });
-        message.error(defaultLoginFailureMessage);
+        message.error(defaultItemFailureMessage);
       });
   }, [intl, countGetItemList]);
 
