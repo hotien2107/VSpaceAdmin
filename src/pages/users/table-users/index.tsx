@@ -1,6 +1,7 @@
+import BlockUserProxy from '@/services/proxy/users/block';
 import UserListProxy from '@/services/proxy/users/get-users';
+import UnblockUserProxy from '@/services/proxy/users/unblock';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
-import { PlusOutlined } from '@ant-design/icons';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
@@ -18,7 +19,10 @@ const TableUsers: React.FC = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   //  Cửa sổ cập nhật phân phối bật lên
 
+  const [countGetUserList, setCountGetUserList] = useState<number>(0);
+
   const [blockModalVisible, handleBlockModalVisible] = useState<boolean>(false);
+  const [unblockModalVisible, handleUnblockModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableUsersItem>();
@@ -30,31 +34,46 @@ const TableUsers: React.FC = () => {
     UserListProxy()
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
-            defaultMessage: res.message ?? 'get users fail',
-          });
-          message.error(defaultLoginFailureMessage);
+          message.error('Lỗi không lấy được danh sách người dùng');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
-            defaultMessage: 'Success!',
-          });
           setUserList(res?.data?.userList ?? []);
-          message.success(defaultLoginSuccessMessage);
         }
       })
       .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
-          defaultMessage: err ?? 'get users fail',
-        });
-        message.error(defaultLoginFailureMessage);
+        message.error('Lỗi không lấy được danh sách người dùng', err);
       });
-  }, [intl]);
+  }, [intl, countGetUserList]);
+
+  const handleBlockUser = (id: number) => {
+    BlockUserProxy(id).then((res) => {
+      if (res.status === ProxyStatusEnum.FAIL) {
+        message.error('Block user failed');
+        return;
+      }
+
+      if (res.status === ProxyStatusEnum.SUCCESS) {
+        message.success('Block user success');
+        setCountGetUserList(countGetUserList + 1);
+      }
+    });
+  };
+
+  const handleUnblockUser = (id: number) => {
+    UnblockUserProxy(id).then((res) => {
+      if (res.status === ProxyStatusEnum.FAIL) {
+        message.error('Unblock user failed');
+        return;
+      }
+
+      if (res.status === ProxyStatusEnum.SUCCESS) {
+        message.success('Unblock user success');
+        setCountGetUserList(countGetUserList + 1);
+      }
+    });
+  };
 
   const columns: ProColumns<TableUsersItem>[] = [
     {
@@ -84,7 +103,9 @@ const TableUsers: React.FC = () => {
       dataIndex: 'phone',
       sorter: true,
       hideInForm: true,
-      renderText: (val: string) => `${val}`,
+      renderText: (val: string) => {
+        return val ? `${val}` : 'Không có';
+      },
     },
     {
       title: 'Trạng thái',
@@ -134,17 +155,32 @@ const TableUsers: React.FC = () => {
       title: 'Tuỳ chọn',
       dataIndex: 'option',
       valueType: 'option',
-      render: (_, record) => [
-        <a
-          key="config"
-          onClick={() => {
-            handleBlockModalVisible(true);
-            setCurrentRow(record);
-          }}
-        >
-          Block
-        </a>,
-      ],
+      render: (_, record) => {
+        if (record.status === 'blocked') {
+          return [
+            <a
+              key="config"
+              onClick={() => {
+                handleUnblockModalVisible(true);
+                setCurrentRow(record);
+              }}
+            >
+              Unblock
+            </a>,
+          ];
+        }
+        return [
+          <a
+            key="config"
+            onClick={() => {
+              handleBlockModalVisible(true);
+              setCurrentRow(record);
+            }}
+          >
+            Block
+          </a>,
+        ];
+      },
     },
   ];
 
@@ -157,17 +193,6 @@ const TableUsers: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
-        toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              handleModalVisible(true);
-            }}
-          >
-            <PlusOutlined /> Mới
-          </Button>,
-        ]}
         dataSource={userList}
         columns={columns}
         rowSelection={{
@@ -195,7 +220,6 @@ const TableUsers: React.FC = () => {
         >
           <Button
             onClick={async () => {
-              console.log('Block user');
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -231,12 +255,31 @@ const TableUsers: React.FC = () => {
         visible={blockModalVisible}
         onOk={() => {
           handleBlockModalVisible(false);
+          if (currentRow) {
+            handleBlockUser(currentRow?.id);
+          }
         }}
         onCancel={() => {
           handleBlockModalVisible(false);
         }}
       >
         <p>Bạn có muốn block người dùng này không?</p>
+      </Modal>
+
+      <Modal
+        title="Basic Modal"
+        visible={unblockModalVisible}
+        onOk={() => {
+          handleUnblockModalVisible(false);
+          if (currentRow) {
+            handleUnblockUser(currentRow?.id);
+          }
+        }}
+        onCancel={() => {
+          handleUnblockModalVisible(false);
+        }}
+      >
+        <p>Bạn có muốn unblock người dùng này không?</p>
       </Modal>
 
       <Drawer
