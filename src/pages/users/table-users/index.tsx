@@ -7,10 +7,9 @@ import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Drawer, Input, message } from 'antd';
+import { Button, Drawer, Input, message, Modal } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useIntl } from 'umi';
-import UpdateForm from './components/UpdateForm';
 import type { TableUsersItem, TableUsersPagination } from './data';
 
 const TableUsers: React.FC = () => {
@@ -19,7 +18,7 @@ const TableUsers: React.FC = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   //  Cửa sổ cập nhật phân phối bật lên
 
-  const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
+  const [blockModalVisible, handleBlockModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableUsersItem>();
@@ -139,13 +138,12 @@ const TableUsers: React.FC = () => {
         <a
           key="config"
           onClick={() => {
-            handleUpdateModalVisible(true);
+            handleBlockModalVisible(true);
             setCurrentRow(record);
           }}
         >
-          Xem chi tiết
+          Block
         </a>,
-        <a key="subscribeAlert">Block</a>,
       ],
     },
   ];
@@ -226,17 +224,19 @@ const TableUsers: React.FC = () => {
           name="name"
         />
       </ModalForm>
-      <UpdateForm
-        onSubmit={async (value) => {
-          console.log(value);
+
+      <Modal
+        title="Basic Modal"
+        visible={blockModalVisible}
+        onOk={() => {
+          handleBlockModalVisible(false);
         }}
         onCancel={() => {
-          handleUpdateModalVisible(false);
-          setCurrentRow(undefined);
+          handleBlockModalVisible(false);
         }}
-        updateModalVisible={updateModalVisible}
-        values={currentRow || {}}
-      />
+      >
+        <p>Bạn có muốn block người dùng này không?</p>
+      </Modal>
 
       <Drawer
         width={600}
