@@ -1,27 +1,60 @@
-export type TableUsersItem = {
+export type TableListItem = {
   id: number;
   name: string;
-  email: string;
-  avatar?: string;
-  phone?: string;
-  status: 'active' | 'inactive' | 'blocked';
-  provider: 'local' | 'google' | 'facebook';
-  externalId?: string;
-  createdAt: Date;
+  nameUser: string;
+  createdAt: string;
 };
 
-export type TableUsersPagination = {
+export type OfficeDetail = {
+  id: number;
+  name: string;
+  invitationCode: string;
+  createdBy: {
+    id: number;
+    name: string;
+    avatar?: string;
+  };
+  officeItems: any[];
+  officeMembers: OfficeMembersInterface[];
+  createdAt: string;
+}
+
+type OfficeMembersInterface = {
+  id: number;
+  officeId: number;
+  member: {
+    id: number;
+    name: string;
+    avatar?: string;
+  };
+  onlineStatus: string;
+  transform: {
+    position: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    rotation: {
+      x: number;
+      y: number;
+      z: number;
+    };
+  };
+}
+
+
+export type TableListPagination = {
   total: number;
   pageSize: number;
   current: number;
 };
 
-export type TableUsersData = {
-  Users: TableUsersItem[];
-  pagination: Partial<TableUsersPagination>;
+export type TableListData = {
+  list: TableListItem[];
+  pagination: Partial<TableListPagination>;
 };
 
-export type TableUsersParams = {
+export type TableListParams = {
   status?: string;
   name?: string;
   desc?: string;

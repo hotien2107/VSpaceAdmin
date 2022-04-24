@@ -1,10 +1,9 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from 'umi';
-import { TableListItem } from './type';
-
-/** 获取规则列表 GET /api/rule */
-export async function rule(
+import { TableListItem } from './data.d';
+/** 获取规则列表 GET /api/items */
+export async function items(
   params: {
     // query
     /** 当前的页码 */
@@ -19,38 +18,11 @@ export async function rule(
     /** 列表的内容总数 */
     total?: number;
     success?: boolean;
-  }>('/api/rule', {
+  }>('/api/models', {
     method: 'GET',
     params: {
       ...params,
     },
-    ...(options || {}),
-  });
-}
-
-/** 新建规则 PUT /api/rule */
-export async function updateRule(data: { [key: string]: any }, options?: { [key: string]: any }) {
-  return request<TableListItem>('/api/rule', {
-    data,
-    method: 'PUT',
-    ...(options || {}),
-  });
-}
-
-/** 新建规则 POST /api/rule */
-export async function addRule(data: { [key: string]: any }, options?: { [key: string]: any }) {
-  return request<TableListItem>('/api/rule', {
-    data,
-    method: 'POST',
-    ...(options || {}),
-  });
-}
-
-/** 删除规则 DELETE /api/rule */
-export async function removeRule(data: { key: number[] }, options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/rule', {
-    data,
-    method: 'DELETE',
     ...(options || {}),
   });
 }

@@ -1,99 +1,139 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, message, Input, Drawer } from 'antd';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
-import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-import { rule, addRule, updateRule, removeRule } from './service';
-import type { TableListItem, TableListPagination } from './type';
+import type { TableListItem, TableListPagination } from './data.d';
 import { Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-/**
- * 添加节点
- *
- * @param fields
- */
-
-const handleAdd = async (fields: TableListItem) => {
-  const hide = message.loading('loading');
-
-  try {
-    await addRule({ ...fields });
-    hide();
-    message.success('Success');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Fails');
-    return false;
-  }
-};
-/**
- * 更新节点
- *
- * @param fields
- */
-
-const handleUpdate = async (fields: FormValueType, currentRow?: TableListItem) => {
-  const hide = message.loading('loading');
-
-  try {
-    await updateRule({
-      ...currentRow,
-      ...fields,
-    });
-    hide();
-    message.success('Success');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Fail');
-    return false;
-  }
-};
-/**
- * 删除节点
- *
- * @param selectedRows
- */
-
-const handleRemove = async (selectedRows: TableListItem[]) => {
-  const hide = message.loading('loading');
-  if (!selectedRows) return true;
-
-  try {
-    // await removeRule({
-    //   id: selectedRows.map((row) => row.id),
-    // });
-    hide();
-    message.success('Success');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Failed');
-    return false;
-  }
-};
+import ItemListProxy from '@/services/proxy/items/get-items';
+import CreateItemProxy from '@/services/proxy/items/create-item';
+import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
+import { useIntl } from 'umi';
+import DeleteItemProxy from '@/services/proxy/items/delete-item';
+import GetItemProxy from '@/services/proxy/items/get-item';
+import Modal from 'antd/lib/modal/Modal';
 
 const TableList: React.FC = () => {
-  /** 新建窗口的弹窗 */
+  const [itemList, setItemList] = useState<TableListItem[]>([]);
+  //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  /** 分布更新窗口的弹窗 */
+  //  Cửa sổ cập nhật phân phối bật lên
 
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
+
   const [isModel, setIsModel] = useState<string>("");
 
+  const intl = useIntl();
 
-  /** 国际化配置 */
+  const handleCreate = (data: string) => {
+    CreateItemProxy({
+      name: data,
+      modelPath: isModel ? isModel : "",
+    })
+      .then((res) => {
+        console.log(res)
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'create item fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err.message ?? 'create item fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      })
+      .finally(() => { });
+  };
+
+  const deleteItem = (id: number) => {
+    DeleteItemProxy({
+      id: id
+    })
+      .then((res) => {
+        console.log(res)
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'delete item fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err.message ?? 'delete item fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      })
+      .finally(() => { });
+  };
+
+  const GetItem = (id: number) => {
+    GetItemProxy({
+      id: id
+    })
+      .then((res) => {
+        console.log(res)
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'get item fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err.message ?? 'get item fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      })
+      .finally(() => { });
+  };
 
   const columns: ProColumns<TableListItem>[] = [
     {
@@ -114,13 +154,13 @@ const TableList: React.FC = () => {
     },
     {
       title: 'Link model',
-      dataIndex: 'desc',
-      valueType: 'textarea',
+      dataIndex: 'modelPath',
+      renderText: (text: string) => <a href={text}>{text}</a>,
     },
     {
       title: 'Date',
       sorter: true,
-      dataIndex: 'updatedAt',
+      dataIndex: 'createdAt',
       valueType: 'dateTime',
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
         const status = form.getFieldValue('status');
@@ -129,8 +169,8 @@ const TableList: React.FC = () => {
           return false;
         }
 
-        if (`${status}` === '3') {
-          return <Input {...rest} placeholder="请输入异常原因！" />;
+        if (`${status}` === '2') {
+          return <Input {...rest} placeholder="" />;
         }
 
         return defaultRender(item);
@@ -142,45 +182,73 @@ const TableList: React.FC = () => {
       valueType: 'option',
       render: (_, record) => [
         <a
-          key="config"
+          key="view"
           onClick={() => {
-            handleUpdateModalVisible(true);
+            setShowDetail(true);
             setCurrentRow(record);
           }}
         >
-          Edit
-        </a>
+          Detail
+        </a>,
       ],
     },
   ];
 
-  
   const handleModelChange = (info: any) => {
-    const hide = message.loading('loading');
-
-      if (info.file.status === "uploading") {
-        hide();
-        message.success('loading');
+    console.log(info.file);
+    if (info.file.status === "uploading") {
+      return
+    }
+    if (info.file.status === "done") {
+      if (info.file.response.code===200){
+          // setIsModel(info.file.response.data.url);
+        
+          return message.success('Success');
       }
-      if (info.file.status === "done") {
-        hide();
-        setIsModel(info.file.response.data.url);
-        message.success('Success');
-        return true;
-      }
-      if (info.file.status === "error") {
-        hide();
-        message.error('Failed');
-        return false;
-      }
+      return message.error('Failed');
+    }
+    if (info.file.status === "error") {
+      return message.error('Failed');
+    }
   };
+
+  useEffect(() => {
+    ItemListProxy()
+      .then((res) => {
+        console.log(res);
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultLoginFailureMessage = intl.formatMessage({
+            id: 'pages.login.failure',
+            defaultMessage: res.message ?? 'get items fail',
+          });
+          message.error(defaultLoginFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: 'Success!',
+          });
+          setItemList(res?.data?.data?.items ?? []);
+          message.success(defaultLoginSuccessMessage);
+        }
+      })
+      .catch((err) => {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: err ?? 'get items fail',
+        });
+        message.error(defaultLoginFailureMessage);
+      });
+  }, [intl]);
 
   return (
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
-        headerTitle="Model List"
+        headerTitle="Model Table"
         actionRef={actionRef}
-        rowKey="key"
+        rowKey="id"
         search={{
           labelWidth: 120,
         }}
@@ -195,11 +263,12 @@ const TableList: React.FC = () => {
             <PlusOutlined /> Create
           </Button>,
         ]}
-        request={rule}
+        dataSource={itemList}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
             setSelectedRows(selectedRows);
+            console.log(selectedRows);
           },
         }}
       />
@@ -209,13 +278,16 @@ const TableList: React.FC = () => {
             <div>
               <span>
                 Are you sure want to delete this model?
+
               </span>
             </div>
           }
         >
           <Button
             onClick={async () => {
-              await handleRemove(selectedRowsState);
+              selectedRowsState.map((item) => {
+                deleteItem(item.id);
+              })
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -231,14 +303,7 @@ const TableList: React.FC = () => {
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          console.log(value);
-          const success = await handleAdd(value as TableListItem);
-          if (success) {
-            handleModalVisible(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+          handleCreate(value.name);
         }}
       >
         <ProFormText
@@ -254,30 +319,19 @@ const TableList: React.FC = () => {
           label="Name model"
         />
         <Upload
-                name="avatar"
-                listType="picture"
-                showUploadList={false}
-                action={`${process.env.REACT_APP_BASE_URL}/uploads/model`}
-                onChange={handleModelChange}
-                headers={{Authorization: `Bearer ${localStorage.getItem("token")}`}}
-                accept=".glb"
-            >
-               <Button icon={<UploadOutlined />}>Click to upload model</Button>
-            </Upload>
-
+          name="model"
+          accept=".glb"
+          showUploadList={false}
+          action="https://api.vispace.tech/api/v1/uploads/model"
+          onChange={handleModelChange}
+          headers={{ Authorization: `Bearer ${localStorage.getItem("access_token")}` }}
+        >
+          <Button icon={<UploadOutlined />}>Click to upload model</Button>
+        </Upload>
       </ModalForm>
       <UpdateForm
         onSubmit={async (value) => {
-          const success = await handleUpdate(value, currentRow);
-
-          if (success) {
-            handleUpdateModalVisible(false);
-            setCurrentRow(undefined);
-
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+          console.log(value);
         }}
         onCancel={() => {
           handleUpdateModalVisible(false);
@@ -286,7 +340,6 @@ const TableList: React.FC = () => {
         updateModalVisible={updateModalVisible}
         values={currentRow || {}}
       />
-
       <Drawer
         width={600}
         visible={showDetail}

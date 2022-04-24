@@ -44,7 +44,7 @@ const Login: React.FC = () => {
             defaultMessage: 'Success!',
           });
           message.success(defaultLoginSuccessMessage);
-          saveDataLocal('user_id', res.data.userInfo.id);
+          saveDataLocal('user_id', res.data.userInfo.id.toString());
           saveDataLocal('user_info', JSON.stringify(res.data.userInfo));
           saveDataLocal('access_token', res.data.accessToken);
           saveDataLocal('refresh_token', res.data.refreshToken);

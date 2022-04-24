@@ -1,4 +1,5 @@
 import { UserInterface } from "./../../../../types/user";
+
 export interface UpdateProfileParamsInterface {
   name: string;
   phone: string;

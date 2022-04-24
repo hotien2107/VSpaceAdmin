@@ -1,27 +1,22 @@
-export type TableUsersItem = {
+export type TableListItem = {
   id: number;
   name: string;
-  email: string;
-  avatar?: string;
-  phone?: string;
-  status: 'active' | 'inactive' | 'blocked';
-  provider: 'local' | 'google' | 'facebook';
-  externalId?: string;
-  createdAt: Date;
+  path: string;
+  createdAt: string;
 };
 
-export type TableUsersPagination = {
+export type TableListPagination = {
   total: number;
   pageSize: number;
   current: number;
 };
 
-export type TableUsersData = {
-  Users: TableUsersItem[];
-  pagination: Partial<TableUsersPagination>;
+export type TableListData = {
+  list: TableListItem[];
+  pagination: Partial<TableListPagination>;
 };
 
-export type TableUsersParams = {
+export type TableListParams = {
   status?: string;
   name?: string;
   desc?: string;
