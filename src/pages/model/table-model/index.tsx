@@ -1,29 +1,28 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer } from 'antd';
-import React, { useState, useRef, useEffect } from 'react';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import type { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText } from '@ant-design/pro-form';
-import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import ProDescriptions from '@ant-design/pro-descriptions';
-import UpdateForm from './components/UpdateForm';
-import type { TableListItem, TableListPagination } from './data.d';
-import { Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import ItemListProxy from '@/services/proxy/items/get-items';
 import CreateItemProxy from '@/services/proxy/items/create-item';
-import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
-import { useIntl } from 'umi';
 import DeleteItemProxy from '@/services/proxy/items/delete-item';
 import GetItemProxy from '@/services/proxy/items/get-item';
-import Modal from 'antd/lib/modal/Modal';
+import ItemListProxy from '@/services/proxy/items/get-items';
+import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
+import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
+import ProDescriptions from '@ant-design/pro-descriptions';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
+import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import { Button, Drawer, Input, message, Upload } from 'antd';
+import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+import { useIntl } from 'umi';
+import UpdateForm from './components/UpdateForm';
+import type { TableListItem, TableListPagination } from './data.d';
 
 const TableList: React.FC = () => {
   const [itemList, setItemList] = useState<TableListItem[]>([]);
   //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   //  Cửa sổ cập nhật phân phối bật lên
+  const [countGetItemList, setCountGetItemList] = useState<number>(0);
 
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
@@ -31,50 +30,39 @@ const TableList: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
 
-  const [isModel, setIsModel] = useState<string>("");
+  const [isModel, setIsModel] = useState<string>('');
 
   const intl = useIntl();
 
   const handleCreate = (data: string) => {
     CreateItemProxy({
       name: data,
-      modelPath: isModel ? isModel : "",
+      modelPath: isModel ? isModel : '',
     })
       .then((res) => {
-        console.log(res)
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
-            defaultMessage: res.message ?? 'create item fail',
-          });
-          message.error(defaultLoginFailureMessage);
+          message.error('Create item fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
-            defaultMessage: 'Success!',
-          });
-          message.success(defaultLoginSuccessMessage);
+          message.success('Create item success');
+          handleModalVisible(false);
+          setCountGetItemList(countGetItemList + 1);
         }
       })
       .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
-          defaultMessage: err.message ?? 'create item fail',
-        });
-        message.error(defaultLoginFailureMessage);
+        message.error('Create item fail', err);
       })
-      .finally(() => { });
+      .finally(() => {});
   };
 
   const deleteItem = (id: number) => {
     DeleteItemProxy({
-      id: id
+      id: id,
     })
       .then((res) => {
-        console.log(res)
+        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultLoginFailureMessage = intl.formatMessage({
             id: 'pages.login.failure',
@@ -90,6 +78,7 @@ const TableList: React.FC = () => {
             defaultMessage: 'Success!',
           });
           message.success(defaultLoginSuccessMessage);
+          setCountGetItemList(countGetItemList + 1);
         }
       })
       .catch((err) => {
@@ -99,15 +88,15 @@ const TableList: React.FC = () => {
         });
         message.error(defaultLoginFailureMessage);
       })
-      .finally(() => { });
+      .finally(() => {});
   };
 
   const GetItem = (id: number) => {
     GetItemProxy({
-      id: id
+      id: id,
     })
       .then((res) => {
-        console.log(res)
+        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultLoginFailureMessage = intl.formatMessage({
             id: 'pages.login.failure',
@@ -132,7 +121,7 @@ const TableList: React.FC = () => {
         });
         message.error(defaultLoginFailureMessage);
       })
-      .finally(() => { });
+      .finally(() => {});
   };
 
   const columns: ProColumns<TableListItem>[] = [
@@ -194,24 +183,6 @@ const TableList: React.FC = () => {
     },
   ];
 
-  const handleModelChange = (info: any) => {
-    console.log(info.file);
-    if (info.file.status === "uploading") {
-      return
-    }
-    if (info.file.status === "done") {
-      if (info.file.response.code===200){
-          // setIsModel(info.file.response.data.url);
-        
-          return message.success('Success');
-      }
-      return message.error('Failed');
-    }
-    if (info.file.status === "error") {
-      return message.error('Failed');
-    }
-  };
-
   useEffect(() => {
     ItemListProxy()
       .then((res) => {
@@ -241,7 +212,7 @@ const TableList: React.FC = () => {
         });
         message.error(defaultLoginFailureMessage);
       });
-  }, [intl]);
+  }, [intl, countGetItemList]);
 
   return (
     <PageContainer>
@@ -276,10 +247,7 @@ const TableList: React.FC = () => {
         <FooterToolbar
           extra={
             <div>
-              <span>
-                Are you sure want to delete this model?
-
-              </span>
+              <span>Are you sure want to delete this model?</span>
             </div>
           }
         >
@@ -287,7 +255,7 @@ const TableList: React.FC = () => {
             onClick={async () => {
               selectedRowsState.map((item) => {
                 deleteItem(item.id);
-              })
+              });
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -318,13 +286,43 @@ const TableList: React.FC = () => {
           placeholder="Enter name..."
           label="Name model"
         />
+
         <Upload
           name="model"
-          accept=".glb"
+          accept=".glb, .gltf"
           showUploadList={false}
-          action="https://api.vispace.tech/api/v1/uploads/model"
-          onChange={handleModelChange}
-          headers={{ Authorization: `Bearer ${localStorage.getItem("access_token")}` }}
+          customRequest={(options) => {
+            const { file } = options;
+            const fmData = new FormData();
+            const config = {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+                'Content-Type': 'multipart/form-data',
+              },
+            };
+
+            if (file instanceof Blob) {
+              const fileConvert = new File([file], 'model', {
+                type: file?.type !== '' ? file?.type : 'model/gltf-binary',
+              });
+              fmData.append('model', fileConvert);
+            }
+            try {
+              axios
+                .post('https://api.vispace.tech/api/v1/uploads/model', fmData, config)
+                .then((res) => {
+                  if (!res?.data?.code) {
+                    setIsModel(res?.data?.data?.url ?? '');
+                    message.success('Upload model success!');
+                  } else {
+                    console.log('error', res);
+                    message.error('Upload model failed!');
+                  }
+                });
+            } catch (err) {
+              console.log('Eroor: ', err);
+            }
+          }}
         >
           <Button icon={<UploadOutlined />}>Click to upload model</Button>
         </Upload>

@@ -81,6 +81,7 @@
     "react-router": "^4.3.1",
     "react-router-dom": "^5.3.1",
     "react-toastify": "^8.2.0",
+    "three": "^0.139.2",
     "umi": "^3.5.0",
     "umi-serve": "^1.9.10"
   },

@@ -15,8 +15,8 @@ const createItemTransform = (
 
 const CreateItemProxy = async (params: ItemParamsInterface): Promise<ProxyFuncType<CreateItemProxyResponseInterface>> => {
   const res = await createItem(params);
-  console.log(res);
-  if (res?.code && res.code !== 200) {
+
+  if (res?.code && res.code !== 201) {
     return {
       status: ProxyStatusEnum.FAIL,
       message: res.message,

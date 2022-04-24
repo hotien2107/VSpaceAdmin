@@ -57,4 +57,8 @@ export default {
   'menu.users.search-users.articles': 'Search Users(articles)',
   'menu.users.search-users.projects': 'Search Users(projects)',
   'menu.users.search-users.applications': 'Search Users(applications)',
+  'menu.Office': 'Office',
+  'menu.Office.Office Table': 'Office Table',
+  'menu.Model': 'Model',
+  'menu.Model.Model Table': 'Model Table',
 };
