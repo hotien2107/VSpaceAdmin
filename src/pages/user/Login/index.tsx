@@ -49,6 +49,7 @@ const Login: React.FC = () => {
           saveDataLocal('access_token', res.data.accessToken);
           saveDataLocal('refresh_token', res.data.refreshToken);
           dispatch(setUserInfo(res?.data.userInfo));
+          history.push('/');
           dispatch(setAuthenticated(true));
           setInitialState(() => ({
             accessToken: initialState?.accessToken,
@@ -56,7 +57,6 @@ const Login: React.FC = () => {
             isAuthenticated: true,
             user: res.data.userInfo,
           }));
-          history.push('/');
         }
       })
       .catch((err) => {

@@ -23,6 +23,6 @@ export interface ItemListProxyResponseInterface {
 interface ItemInterface {
   id: number;
   name: string;
-  modelPath:string;
+  modelPath: string;
   createdAt: string;
 }
