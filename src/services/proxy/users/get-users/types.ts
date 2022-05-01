@@ -21,9 +21,15 @@ export interface UserListProxyTransformInterface {
 
 export interface UserListProxyResponseInterface {
   userList: UserInterface[];
-  paginaton?: {
+  pagination?: {
     count: number;
     page: number;
     totalCount: number;
   };
+}
+
+
+export interface GetUsersParamsProxyInterface {
+  page?: number;
+  limit?: number;
 }

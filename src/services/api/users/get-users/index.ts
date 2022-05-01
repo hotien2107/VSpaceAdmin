@@ -1,10 +1,10 @@
 import HttpClient from '../../../../helpers/axios';
-import type { GetUsersApiResponseInterface } from './types';
+import type { GetUsersApiResponseInterface, GetUsersParamsInterface } from './types';
 
 const URL = '/users';
 
-export async function getUserList() {
-  const response = await HttpClient.get<GetUsersApiResponseInterface>(URL);
+export async function getUserList(param: GetUsersParamsInterface) {
+  const response = await HttpClient.get<GetUsersApiResponseInterface>(URL, { params: param });
 
   return response.data;
 }

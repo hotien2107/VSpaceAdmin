@@ -23,3 +23,8 @@ interface UserInterface {
   externalId?: string;
   createdAt: string;
 }
+
+export interface GetUsersParamsInterface {
+  page?: number;
+  limit?: number;
+}

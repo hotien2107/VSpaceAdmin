@@ -15,6 +15,11 @@ import type { TableUsersItem, TableUsersPagination } from './data';
 
 const TableUsers: React.FC = () => {
   const [userList, setUserList] = useState<TableUsersItem[]>([]);
+  const [userPagination, setUserPagination] = useState<TableUsersPagination>({
+    total: 0,
+    pageSize: 0,
+    current: 1,
+  });
   //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   //  Cửa sổ cập nhật phân phối bật lên
@@ -31,7 +36,7 @@ const TableUsers: React.FC = () => {
   const intl = useIntl();
 
   useEffect(() => {
-    UserListProxy()
+    UserListProxy({})
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
           message.error('Lỗi không lấy được danh sách người dùng');
@@ -40,6 +45,13 @@ const TableUsers: React.FC = () => {
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
           setUserList(res?.data?.userList ?? []);
+          if (res?.data?.pagination) {
+            setUserPagination({
+              total: res?.data?.pagination?.totalCount ?? 0,
+              pageSize: res?.data?.pagination?.count ?? 0,
+              current: res?.data?.pagination?.page ?? 1,
+            });
+          }
         }
       })
       .catch((err) => {
@@ -199,6 +211,14 @@ const TableUsers: React.FC = () => {
           onChange: (_, selectedRows) => {
             setSelectedRows(selectedRows);
             console.log(selectedRows);
+          },
+        }}
+        pagination={{
+          pageSize: userPagination.pageSize,
+          total: userPagination.total,
+          current: userPagination.current,
+          onChange: (page, pageSize) => {
+            console.log(page, pageSize);
           },
         }}
       />

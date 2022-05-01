@@ -1,7 +1,11 @@
 import { getUserList } from '@/services/api/users/get-users';
 import type { ProxyFuncType } from '../../../../types/http/proxy/ProxyFuncType';
 import { ProxyStatusEnum } from '../../../../types/http/proxy/ProxyStatus';
-import type { UserListProxyResponseInterface, UserListProxyTransformInterface } from './types';
+import type {
+  GetUsersParamsProxyInterface,
+  UserListProxyResponseInterface,
+  UserListProxyTransformInterface,
+} from './types';
 
 const userListTransform = (
   res: UserListProxyTransformInterface,
@@ -30,8 +34,10 @@ const userListTransform = (
   return transform;
 };
 
-const UserListProxy = async (): Promise<ProxyFuncType<UserListProxyResponseInterface>> => {
-  const res = await getUserList();
+const UserListProxy = async (
+  param: GetUsersParamsProxyInterface,
+): Promise<ProxyFuncType<UserListProxyResponseInterface>> => {
+  const res = await getUserList(param);
 
   if (res?.code && res.code !== 200) {
     return {
