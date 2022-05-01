@@ -1,4 +1,4 @@
-import { OfficeInterface } from "../../../../types/office";
+import type{ OfficeInterface } from "../../../../types/office";
 
 export interface OfficeListProxyParamsInterface {
   page?: number;

@@ -1,6 +1,8 @@
+import type {TableListItem} from "../../../../types/item";
+
 export interface ItemListProxyTransformInterface {
   data: {
-    items: ItemInterface[];
+    items: TableListItem[];
     pagination: {
       count: number;
       page: number;
@@ -10,19 +12,11 @@ export interface ItemListProxyTransformInterface {
 }
 
 export interface ItemListProxyResponseInterface {
-  data: {
-    items: ItemInterface[];
-    pagination: {
-      count: number;
-      page: number;
-      totalCount: number;
-    };
+  items: TableListItem[];
+  pagination: {
+    count: number;
+    page: number;
+    totalCount: number;
   };
 }
 
-interface ItemInterface {
-  id: number;
-  name: string;
-  modelPath:string;
-  createdAt: string;
-}
