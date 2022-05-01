@@ -1,6 +1,8 @@
+import type { TableListItem } from "@/types/item";
+
 export interface GetItemApiResponseInterface {
   data: {
-    items: ItemInterface[];
+    items: TableListItem[];
     pagination: {
       count: number;
       page: number;
@@ -12,11 +14,3 @@ export interface GetItemApiResponseInterface {
   errors?: string[];
   status?: string;
 }
-  
-  interface ItemInterface {
-    id: number;
-    name: string;
-    modelPath:string;
-    createdAt: string;
-  }
-  

@@ -9,7 +9,7 @@ import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { TableListItem, TableListPagination, OfficeDetail } from './data.d';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
-import { useIntl } from 'umi';
+import { useIntl } from "umi";
 import CreateOfficeProxy from '@/services/proxy/offices/create-office';
 import GetOfficeListProxy from '@/services/proxy/offices/office-list';
 import UpdateOfficeProxy from '@/services/proxy/offices/update-office';
@@ -17,10 +17,7 @@ import OfficeDetailProxy from '@/services/proxy/offices/office-detail';
 
 const OfficeTable: React.FC = () => {
   const [itemList, setItemList] = useState<TableListItem[]>([]);
-  //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  //  Cửa sổ cập nhật phân phối bật lên
-
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
@@ -77,7 +74,7 @@ const OfficeTable: React.FC = () => {
       valueType: 'option',
       render: (_, record) => [
         <a
-          key="config"
+          key="detail"
           onClick={() => {
             GetOffice(record.id);
             setShowDetail(true);
@@ -141,16 +138,22 @@ const OfficeTable: React.FC = () => {
       valueType: 'option',
       render: (_, record) => [
         <a
-          key="config"
+          key="config1"
           onClick={() => {
+            const tmp:TableListItem={
+              id:record.id,
+              name: record.name,
+              createdAt: record.createdAt,
+              nameUser: record.createdBy.name
+            }
+            setCurrentRow(tmp);
             handleUpdateModalVisible(true);
-            setCurrentRow(record);
           }}
         >
           Update
         </a>,
         <a
-          key="view"
+          key="view2"
           onClick={() => {
           }}
         >
@@ -182,6 +185,7 @@ const OfficeTable: React.FC = () => {
             defaultMessage: 'Success!',
           });
           message.success(defaultOfficeSuccessMessage);
+          handleModalVisible(false);
           setCountHandle(countHanlde + 1);
         }
       })
@@ -208,6 +212,7 @@ const OfficeTable: React.FC = () => {
             defaultMessage: res.message ?? 'Update Office fail',
           });
           message.error(defaultOfficeFailureMessage);
+          handleUpdateModalVisible(false);
           return;
         }
 
@@ -250,7 +255,6 @@ const OfficeTable: React.FC = () => {
             defaultMessage: 'Success!',
           });
           setCurrentOffice(res?.data.office);
-          message.success(defaultOfficeSuccessMessage);
         }
       })
       .catch((err) => {
@@ -329,7 +333,6 @@ const OfficeTable: React.FC = () => {
         rowSelection={{
           onChange: (_, selectedRows) => {
             setSelectedRows(selectedRows);
-            console.log(selectedRows);
           },
         }}
       />
@@ -386,7 +389,16 @@ const OfficeTable: React.FC = () => {
         visible={updateModalVisible}
         onVisibleChange={handleUpdateModalVisible}
         onFinish={async (value) => {
-          UpdateOffice(currentRow?.id, value.name);
+          if (currentRow?.id){
+            UpdateOffice(currentRow?.id, value.name);
+          }
+          else{
+            const defaultOfficeFailureMessage = intl.formatMessage({
+              id: 'pages.load.fails',
+              defaultMessage:  'Load fail',
+            });
+            message.error(defaultOfficeFailureMessage);
+          }
         }}
       >
         <ProFormText

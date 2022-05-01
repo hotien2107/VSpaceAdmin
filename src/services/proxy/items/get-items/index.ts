@@ -7,14 +7,12 @@ const ItemListTransform = (
   res: ItemListProxyTransformInterface,
 ): ItemListProxyResponseInterface => {
   const transform = {
-    data: {
-      items: res.data.items,
+      items: res.data?.items,
       pagination: {
-        count: res.data.pagination.count,
-        page: res.data.pagination.page,
-        totalCount: res.data.pagination.totalCount,
+        count: res.data?.pagination.count,
+        page: res.data?.pagination.page,
+        totalCount: res.data?.pagination.totalCount,
       },
-    }
   };
 
   return transform;
@@ -22,6 +20,7 @@ const ItemListTransform = (
 
 const ItemListProxy = async (): Promise<ProxyFuncType<ItemListProxyResponseInterface>> => {
   const res = await getItemList();
+  console.log(res);
 
   if (res?.code && res.code !== 200) {
     return {

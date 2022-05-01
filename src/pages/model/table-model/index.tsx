@@ -18,9 +18,7 @@ import type { TableListItem, TableListPagination } from './data.d';
 
 const TableList: React.FC = () => {
   const [itemList, setItemList] = useState<TableListItem[]>([]);
-  //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  //  Cửa sổ cập nhật phân phối bật lên
   const [countGetItemList, setCountGetItemList] = useState<number>(0);
 
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
@@ -90,39 +88,6 @@ const TableList: React.FC = () => {
       .finally(() => {});
   };
 
-  // const GetItem = (id: number) => {
-  //   GetItemProxy({
-  //     id: id,
-  //   })
-  //     .then((res) => {
-  //       console.log(res);
-  //       if (res.status === ProxyStatusEnum.FAIL) {
-  //         const defaultItemFailureMessage = intl.formatMessage({
-  //           id: 'pages.Item.failure',
-  //           defaultMessage: res.message ?? 'get item fail',
-  //         });
-  //         message.error(defaultItemFailureMessage);
-  //         return;
-  //       }
-
-  //       if (res.status === ProxyStatusEnum.SUCCESS) {
-  //         const defaultItemSuccessMessage = intl.formatMessage({
-  //           id: 'pages.Item.success',
-  //           defaultMessage: 'Success!',
-  //         });
-  //         message.success(defaultItemSuccessMessage);
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       const defaultItemFailureMessage = intl.formatMessage({
-  //         id: 'pages.Item.failure',
-  //         defaultMessage: err.message ?? 'get item fail',
-  //       });
-  //       message.error(defaultItemFailureMessage);
-  //     })
-  //     .finally(() => {});
-  // };
-
   const columns: ProColumns<TableListItem>[] = [
     {
       title: 'Name Model',
@@ -185,7 +150,7 @@ const TableList: React.FC = () => {
   useEffect(() => {
     ItemListProxy()
       .then((res) => {
-        console.log(res);
+        console.log (res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultItemFailureMessage = intl.formatMessage({
             id: 'pages.load.fail',
@@ -196,7 +161,7 @@ const TableList: React.FC = () => {
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          setItemList(res?.data?.data?.items ?? []);
+          setItemList(res.data?.items ?? []);
         }
       })
       .catch((err) => {
