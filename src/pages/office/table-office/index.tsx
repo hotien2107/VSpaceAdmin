@@ -27,6 +27,7 @@ const OfficeTable: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const [currentOffice, setCurrentOffice] = useState<OfficeDetail>();
+  const [countHanlde, setCountHandle] = useState<number>(0);
   const intl = useIntl();
 
   const columns: ProColumns<TableListItem>[] = [
@@ -167,28 +168,29 @@ const OfficeTable: React.FC = () => {
       .then((res) => {
         console.log(res)
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
-            defaultMessage: res.message ?? 'create item fail',
+          const defaultOfficeFailureMessage = intl.formatMessage({
+            id: 'pages.create.fail',
+            defaultMessage: res.message ?? 'create Office fail',
           });
-          message.error(defaultLoginFailureMessage);
+          message.error(defaultOfficeFailureMessage);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
+          const defaultOfficeSuccessMessage = intl.formatMessage({
+            id: 'pages.create.success',
             defaultMessage: 'Success!',
           });
-          message.success(defaultLoginSuccessMessage);
+          message.success(defaultOfficeSuccessMessage);
+          setCountHandle(countHanlde + 1);
         }
       })
       .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
-          defaultMessage: err.message ?? 'create item fail',
+        const defaultOfficeFailureMessage = intl.formatMessage({
+          id: 'pages.create.failure',
+          defaultMessage: err.message ?? 'create Office fail',
         });
-        message.error(defaultLoginFailureMessage);
+        message.error(defaultOfficeFailureMessage);
       })
       .finally(() => { });
   };
@@ -201,28 +203,29 @@ const OfficeTable: React.FC = () => {
       .then((res) => {
         console.log(res)
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
-            defaultMessage: res.message ?? 'delete item fail',
+          const defaultOfficeFailureMessage = intl.formatMessage({
+            id: 'pages.update.fail',
+            defaultMessage: res.message ?? 'Update Office fail',
           });
-          message.error(defaultLoginFailureMessage);
+          message.error(defaultOfficeFailureMessage);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
+          const defaultOfficeSuccessMessage = intl.formatMessage({
+            id: 'pages.update.success',
             defaultMessage: 'Success!',
           });
-          message.success(defaultLoginSuccessMessage);
+          message.success(defaultOfficeSuccessMessage);
+          setCountHandle(countHanlde + 1);
         }
       })
       .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
-          defaultMessage: err.message ?? 'delete item fail',
+        const defaultOfficeFailureMessage = intl.formatMessage({
+          id: 'pages.update.fail',
+          defaultMessage: err.message ?? 'Update Office fail',
         });
-        message.error(defaultLoginFailureMessage);
+        message.error(defaultOfficeFailureMessage);
       })
       .finally(() => { });
   };
@@ -233,29 +236,29 @@ const OfficeTable: React.FC = () => {
     })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
-            defaultMessage: res.message ?? 'get item fail',
+          const defaultOfficeFailureMessage = intl.formatMessage({
+            id: 'pages.detail.fail',
+            defaultMessage: res.message ?? 'get detail office fail',
           });
-          message.error(defaultLoginFailureMessage);
+          message.error(defaultOfficeFailureMessage);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
+          const defaultOfficeSuccessMessage = intl.formatMessage({
+            id: 'pages.detail.success',
             defaultMessage: 'Success!',
           });
           setCurrentOffice(res?.data.office);
-          message.success(defaultLoginSuccessMessage);
+          message.success(defaultOfficeSuccessMessage);
         }
       })
       .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
-          defaultMessage: err.message ?? 'get item fail',
+        const defaultOfficeFailureMessage = intl.formatMessage({
+          id: 'pages.detail.fail',
+          defaultMessage: err.message ?? 'get detail office fail',
         });
-        message.error(defaultLoginFailureMessage);
+        message.error(defaultOfficeFailureMessage);
       })
       .finally(() => { });
   };
@@ -265,17 +268,17 @@ const OfficeTable: React.FC = () => {
       .then((res) => {
         console.log(res.status);
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultLoginFailureMessage = intl.formatMessage({
-            id: 'pages.login.failure',
-            defaultMessage: res.message ?? 'get items fail',
+          const defaultOfficeFailureMessage = intl.formatMessage({
+            id: 'pages.load.fails',
+            defaultMessage: res.message ?? 'Load fail',
           });
-          message.error(defaultLoginFailureMessage);
+          message.error(defaultOfficeFailureMessage);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
+          const defaultOfficeSuccessMessage = intl.formatMessage({
+            id: 'pages.load.success',
             defaultMessage: 'Success!',
           });
           let list: Array<TableListItem> = [];
@@ -289,17 +292,16 @@ const OfficeTable: React.FC = () => {
             list.push(tmp);
           })
           setItemList(list);
-          message.success(defaultLoginSuccessMessage);
         }
       })
       .catch((err) => {
-        const defaultLoginFailureMessage = intl.formatMessage({
-          id: 'pages.login.failure',
-          defaultMessage: err ?? 'get items fail',
+        const defaultOfficeFailureMessage = intl.formatMessage({
+          id: 'pages.load.failure',
+          defaultMessage: err ?? 'Load Office fail',
         });
-        message.error(defaultLoginFailureMessage);
+        message.error(defaultOfficeFailureMessage);
       });
-  }, [intl]);
+  }, [intl, countHanlde]);
 
 
   return (
