@@ -1,6 +1,5 @@
 import CreateItemProxy from '@/services/proxy/items/create-item';
 import DeleteItemProxy from '@/services/proxy/items/delete-item';
-import GetItemProxy from '@/services/proxy/items/get-item';
 import ItemListProxy from '@/services/proxy/items/get-items';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
@@ -197,10 +196,6 @@ const TableList: React.FC = () => {
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultItemSuccessMessage = intl.formatMessage({
-            id: 'pages.load.success',
-            defaultMessage: 'Success!',
-          });
           setItemList(res?.data?.data?.items ?? []);
         }
       })

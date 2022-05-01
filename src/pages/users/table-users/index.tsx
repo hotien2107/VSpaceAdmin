@@ -187,7 +187,7 @@ const TableUsers: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<TableUsersItem, TableUsersPagination>
-        headerTitle="Mẫu yêu cầu"
+        headerTitle="Danh sách người dùng"
         actionRef={actionRef}
         rowKey="id"
         search={{
