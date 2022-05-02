@@ -20,7 +20,6 @@ const UpdateOfficeProxy = async (
   params: UpdateOfficeProxyParamsInterface
 ): Promise<ProxyFuncType<UpdateOfficeProxyResponseInterface>> => {
   const res = await updateOffice(params);
-  console.log(res);
 
   if (res?.code && res?.code!==200) {
     return {
@@ -31,7 +30,7 @@ const UpdateOfficeProxy = async (
     };
   }
 
-  const officeListRespTransformed = officeDetailTransform(res);
+  const officeListRespTransformed = officeDetailTransform(res?.data);
   return {
     status: ProxyStatusEnum.SUCCESS,
     data: officeListRespTransformed,

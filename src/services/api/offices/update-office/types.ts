@@ -4,7 +4,9 @@ export interface UpdateOfficeParamsInterface {
 }
 
 export interface UpdateOfficeApiResponseInterface {
-  office: UpdateOfficeInterface;
+  data:{
+    office: UpdateOfficeInterface;
+  }
   status?: string;
   code?: number;
   message?: string;

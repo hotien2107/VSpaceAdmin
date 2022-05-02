@@ -15,8 +15,17 @@ import GetOfficeListProxy from '@/services/proxy/offices/office-list';
 import UpdateOfficeProxy from '@/services/proxy/offices/update-office';
 import OfficeDetailProxy from '@/services/proxy/offices/office-detail';
 
+
 const OfficeTable: React.FC = () => {
   const [itemList, setItemList] = useState<TableListItem[]>([]);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [pagination, setPagination] = useState<TableListPagination>({
+    total: 0,
+    pageSize: 0,
+    current: 1,
+    name:"",
+  });
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
@@ -25,12 +34,18 @@ const OfficeTable: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const [currentOffice, setCurrentOffice] = useState<OfficeDetail>();
   const [countHanlde, setCountHandle] = useState<number>(0);
+
+  const [name, setName] = useState<string>("");
+  const [sorter, setSorter] = useState<string>("");
   const intl = useIntl();
 
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: 'Name Office',
+      title: 'Name',
       dataIndex: 'name',
+      sorter: {
+        multiple: 1,
+      },
       render: (dom, entity) => {
         return (
           <a
@@ -45,13 +60,15 @@ const OfficeTable: React.FC = () => {
       },
     },
     {
-      title: 'Create User',
+      title: 'Create by User',
       dataIndex: 'nameUser',
       renderText: (text: string) => <a>{text}</a>,
     },
     {
       title: 'Date',
-      sorter: true,
+      sorter: {
+        multiple: 2,
+      },
       dataIndex: 'createdAt',
       valueType: 'dateTime',
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
@@ -105,7 +122,7 @@ const OfficeTable: React.FC = () => {
 
   const columnDetail: ProColumns<OfficeDetail>[] = [
     {
-      title: 'Name Office',
+      title: 'Name',
       dataIndex: 'name',
     },
     {
@@ -140,8 +157,8 @@ const OfficeTable: React.FC = () => {
         <a
           key="config1"
           onClick={() => {
-            const tmp:TableListItem={
-              id:record.id,
+            const tmp: TableListItem = {
+              id: record.id,
               name: record.name,
               createdAt: record.createdAt,
               nameUser: record.createdBy.name
@@ -162,7 +179,6 @@ const OfficeTable: React.FC = () => {
       ],
     },
   ];
-
 
   const handleCreate = (data: string) => {
     CreateOfficeProxy({
@@ -205,7 +221,6 @@ const OfficeTable: React.FC = () => {
       name: name,
     })
       .then((res) => {
-        console.log(res)
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultOfficeFailureMessage = intl.formatMessage({
             id: 'pages.update.fail',
@@ -223,6 +238,7 @@ const OfficeTable: React.FC = () => {
           });
           message.success(defaultOfficeSuccessMessage);
           setCountHandle(countHanlde + 1);
+          GetOffice(id);
         }
       })
       .catch((err) => {
@@ -268,9 +284,8 @@ const OfficeTable: React.FC = () => {
   };
 
   useEffect(() => {
-    GetOfficeListProxy({ page: 1, size: 10 })
+    GetOfficeListProxy({ page: currentPage, limit: pageSize, "name[startsWith]":name,sort_by:sorter })
       .then((res) => {
-        console.log(res.status);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultOfficeFailureMessage = intl.formatMessage({
             id: 'pages.load.fails',
@@ -286,7 +301,7 @@ const OfficeTable: React.FC = () => {
             defaultMessage: 'Success!',
           });
           let list: Array<TableListItem> = [];
-          res?.data?.officeList.map((item) => {
+          res?.data?.offices.map((item) => {
             let tmp: TableListItem = {
               id: item.id,
               name: item.name,
@@ -296,6 +311,14 @@ const OfficeTable: React.FC = () => {
             list.push(tmp);
           })
           setItemList(list);
+          if (res?.data?.pagination) {
+            setPagination({
+              total: res?.data?.pagination?.totalCount ?? 0,
+              pageSize: res?.data?.pagination?.count ?? pageSize,
+              current: res?.data?.pagination?.page ?? 1,
+              name:"",
+            });
+          }
         }
       })
       .catch((err) => {
@@ -305,7 +328,7 @@ const OfficeTable: React.FC = () => {
         });
         message.error(defaultOfficeFailureMessage);
       });
-  }, [intl, countHanlde]);
+  }, [intl, countHanlde, currentPage, pageSize,name,sorter]);
 
 
   return (
@@ -316,6 +339,17 @@ const OfficeTable: React.FC = () => {
         rowKey="id"
         search={{
           labelWidth: 120,
+        }}
+        request={(params, sorter) => {
+          setName(params?.name);
+          let nameSorter:string="";
+          nameSorter= sorter.name && sorter.name ==="ascend"?"name":"-name";
+          let createAtSorter:string="";
+          createAtSorter= sorter.createAt && sorter.createAt ==="ascend"?"create_at":"-create_at";
+          setSorter(nameSorter+","+createAtSorter);
+          return Promise.resolve({
+            success: true,
+          });
         }}
         toolBarRender={() => [
           <Button
@@ -333,6 +367,19 @@ const OfficeTable: React.FC = () => {
         rowSelection={{
           onChange: (_, selectedRows) => {
             setSelectedRows(selectedRows);
+          },
+        }}
+        pagination={{
+          pageSize: pageSize,
+          total: pagination.total,
+          current: pagination.current,
+          showSizeChanger: true,
+          pageSizeOptions: ["5", "10", "20","50","100"],
+          onShowSizeChange: (page, pageSize) => {
+            setPageSize(pageSize);
+          },
+          onChange: (page) => {
+            setCurrentPage(page);
           },
         }}
       />
@@ -389,13 +436,13 @@ const OfficeTable: React.FC = () => {
         visible={updateModalVisible}
         onVisibleChange={handleUpdateModalVisible}
         onFinish={async (value) => {
-          if (currentRow?.id){
+          if (currentRow?.id) {
             UpdateOffice(currentRow?.id, value.name);
           }
-          else{
+          else {
             const defaultOfficeFailureMessage = intl.formatMessage({
               id: 'pages.load.fails',
-              defaultMessage:  'Load fail',
+              defaultMessage: 'Load fail',
             });
             message.error(defaultOfficeFailureMessage);
           }

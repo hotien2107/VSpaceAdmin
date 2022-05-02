@@ -28,7 +28,7 @@ const CreateOfficeProxy = async (
       errors: res.errors,
     };
   }
-  const officeListRespTransformed = createOfficeTransform(res);
+  const officeListRespTransformed = createOfficeTransform(res?.data);
   return {
     status: ProxyStatusEnum.SUCCESS,
     data: officeListRespTransformed,

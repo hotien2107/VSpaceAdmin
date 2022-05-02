@@ -19,6 +19,9 @@ const TableUsers: React.FC = () => {
     total: 0,
     pageSize: 0,
     current: 1,
+    name:"",
+    email:"",
+    status:"",
   });
   const [currentPage, setCurrentPage] = useState<number>(1);
   //  Cửa sổ bật lên mới
@@ -33,11 +36,36 @@ const TableUsers: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableUsersItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableUsersItem[]>([]);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] =useState<string>("");
+  const [status, setStatus] = useState<string>("");
+  const [sorter, setSorter] = useState<string>("");
+
 
   const intl = useIntl();
 
   useEffect(() => {
-    UserListProxy({ page: currentPage })
+    let tmp:Object={ 
+      page: currentPage, 
+      limit: pageSize,
+      "name[startsWith]": name, 
+      "email[contains]":email,
+      sort_by:sorter,
+    };
+
+    if (status!==""){
+      tmp={ 
+        page: currentPage, 
+        limit: pageSize,
+        "name[startsWith]": name, 
+        "email[contains]":email,
+        status: status,
+        sort_by:sorter
+      };
+    }
+    console.log(tmp);
+    UserListProxy(tmp)
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
           message.error('Lỗi không lấy được danh sách người dùng');
@@ -52,6 +80,9 @@ const TableUsers: React.FC = () => {
               total: res?.data?.pagination?.totalCount ?? 0,
               pageSize: res?.data?.pagination?.count ?? 0,
               current: res?.data?.pagination?.page ?? 1,
+              email:"",
+              name:"",
+              status:""
             });
           }
         }
@@ -59,7 +90,7 @@ const TableUsers: React.FC = () => {
       .catch((err) => {
         message.error('Lỗi không lấy được danh sách người dùng', err);
       });
-  }, [intl, countGetUserList, currentPage]);
+  }, [intl, countGetUserList, currentPage, pageSize,name,email,sorter,status]);
 
   const handleBlockUser = (id: number) => {
     BlockUserProxy(id).then((res) => {
@@ -93,6 +124,9 @@ const TableUsers: React.FC = () => {
     {
       title: 'Tên người dùng',
       dataIndex: 'name',
+      sorter: {
+        multiple: 1,
+      },
       render: (dom, entity) => {
         return (
           <a
@@ -109,13 +143,11 @@ const TableUsers: React.FC = () => {
     {
       title: 'email',
       dataIndex: 'email',
-      sorter: true,
       renderText: (val: string) => `${val}`,
     },
     {
       title: 'Số điện thoại',
       dataIndex: 'phone',
-      sorter: true,
       hideInForm: true,
       renderText: (val: string) => {
         return val ? `${val}` : 'Không có';
@@ -142,9 +174,11 @@ const TableUsers: React.FC = () => {
     },
     {
       title: 'Thời gian giam gia',
-      sorter: true,
       dataIndex: 'createdAt',
       valueType: 'dateTime',
+      sorter: {
+        multiple: 2,
+      },
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
         const status = form.getFieldValue('status');
 
@@ -161,7 +195,6 @@ const TableUsers: React.FC = () => {
     },
     {
       title: 'Loại đăng nhập',
-      sorter: true,
       dataIndex: 'provider',
       renderText: (val: string) => `${val}`,
     },
@@ -207,6 +240,34 @@ const TableUsers: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
+        request={(params, sorter) => {
+          setName(params?.name);
+          setEmail(params?.email);
+          console.log(params);
+          let statusSearch:string="";
+          switch (params?.status){
+            case "0":
+              statusSearch="inactive";
+              break;
+            case "1":
+              statusSearch="active";
+              break;
+            case "2":
+              statusSearch="blocked";
+              break;
+            default:
+              statusSearch="";
+          }
+          setStatus(statusSearch);
+          let nameSorter:string="";
+          nameSorter= sorter.name && sorter.name ==="ascend"?"name":"-name";
+          let createAtSorter:string="";
+          createAtSorter= sorter.createAt && sorter.createAt ==="ascend"?"create_at":"-create_at";
+          setSorter(nameSorter+","+createAtSorter);
+          return Promise.resolve({
+            success: true,
+          });
+        }}
         dataSource={userList}
         columns={columns}
         rowSelection={{
@@ -216,9 +277,15 @@ const TableUsers: React.FC = () => {
           },
         }}
         pagination={{
-          pageSize: userPagination.pageSize,
+          pageSize: pageSize,
           total: userPagination.total,
           current: userPagination.current,
+          showSizeChanger: true,
+          pageSizeOptions: ["5", "10", "20", "50", "100"],
+          onShowSizeChange: (page, pageSize) => {
+            console.log(pageSize);
+            setPageSize(pageSize);
+          },
           onChange: (page) => {
             setCurrentPage(page);
           },

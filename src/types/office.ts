@@ -36,10 +36,13 @@ export interface OfficeDetailInterface {
     id: number;
     name: string;
     invitationCode: string;
+    avatarUrl:string;
     createdBy: OfficeUserInterface;
     officeItems: [];
     officeMembers: Array<MemberOfficeInterface>;
     createdAt: string;
+    numberOfItems: number;
+    numberOfMembers: number
 }
 
 

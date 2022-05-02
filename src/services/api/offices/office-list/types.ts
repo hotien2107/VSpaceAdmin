@@ -2,15 +2,20 @@ import type { OfficeInterface } from "../../../../types/office";
 
 export interface OfficeListParamsInterface {
   page?: number;
-  size?: number;
+  limit?: number;
+  "name[startsWith]"?: string;
+  sort_by?:string;
 }
 
 export interface OfficeListApiResponseInterface {
-  offices: OfficeInterface[];
-  page: string;
-  limit: string;
-  total: number;
-
+  data: {
+    offices: OfficeInterface[];
+    pagination: {
+      count: number;
+      page: number;
+      totalCount: number;
+    };
+  };
   status?: string;
   code?: number;
   message?: string;

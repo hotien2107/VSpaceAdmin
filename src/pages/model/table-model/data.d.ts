@@ -9,6 +9,8 @@ export type TableListPagination = {
   total: number;
   pageSize: number;
   current: number;
+  name: string;
+  modelPath: string;
 };
 
 export type TableListData = {

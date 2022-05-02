@@ -12,10 +12,12 @@ const officeListTransform = (
   res: OfficeListProxyTransformInterface
 ): OfficeListProxyResponseInterface => {
   const transform = {
-    officeList: res?.data?.offices ?? [],
-    page: res?.page ? +res.page : 0,
-    limit: res?.limit ? +res.limit : 0,
-    total: res?.total ?? 0,
+    offices: res?.offices ?? [],
+    pagination: {
+      count: res.pagination.count,
+      page: res.pagination.page,
+      totalCount: res.pagination.totalCount,
+    },
   };
   return transform;
 };
@@ -33,7 +35,7 @@ const GetOfficeListProxy = async (
     };
   }
 
-  const officeListRespTransformed = officeListTransform(res);
+  const officeListRespTransformed = officeListTransform(res.data);
   return {
     status: ProxyStatusEnum.SUCCESS,
     data: officeListRespTransformed,

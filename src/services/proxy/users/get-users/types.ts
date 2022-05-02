@@ -32,4 +32,8 @@ export interface UserListProxyResponseInterface {
 export interface GetUsersParamsProxyInterface {
   page?: number;
   limit?: number;
+  "email[contains]"?: string;
+  "name[startsWith]"?: string;
+  status?:string;
+  sort_by?:string;
 }

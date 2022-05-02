@@ -1,11 +1,13 @@
 import HttpClient from "../../../../helpers/axios";
-import type { GetItemApiResponseInterface } from "./types";
+import type { GetItemApiResponseInterface, ItemListParamsInterface } from "./types";
 
 
 const URL = "/items";
-console.log(URL);
 
-export async function getItemList() {
-    const response = await HttpClient.get<GetItemApiResponseInterface>(URL);
+export async function getItemList(params: ItemListParamsInterface) {
+    const response = await HttpClient.get<GetItemApiResponseInterface>(URL, {
+      params: params,
+    });
     return response.data;
-}
+  }
+  
