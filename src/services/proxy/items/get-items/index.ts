@@ -1,7 +1,7 @@
 import { getItemList } from '@/services/api/items/get-items';
 import type { ProxyFuncType } from '../../../../types/http/proxy/ProxyFuncType';
 import { ProxyStatusEnum } from '../../../../types/http/proxy/ProxyStatus';
-import type { ItemListProxyResponseInterface, ItemListProxyTransformInterface } from './types';
+import type { ItemListProxyResponseInterface, ItemListProxyTransformInterface, ItemListProxyParamsInterface } from './types';
 
 const ItemListTransform = (
   res: ItemListProxyTransformInterface,
@@ -18,9 +18,8 @@ const ItemListTransform = (
   return transform;
 };
 
-const ItemListProxy = async (): Promise<ProxyFuncType<ItemListProxyResponseInterface>> => {
-  const res = await getItemList();
-  console.log(res);
+const ItemListProxy = async (params:ItemListProxyParamsInterface): Promise<ProxyFuncType<ItemListProxyResponseInterface>> => {
+  const res = await getItemList(params);
 
   if (res?.code && res.code !== 200) {
     return {

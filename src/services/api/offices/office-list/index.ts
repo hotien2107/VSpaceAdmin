@@ -10,6 +10,5 @@ export async function getOfficeList(params: OfficeListParamsInterface) {
   const response = await HttpClient.get<OfficeListApiResponseInterface>(URL, {
     params: params,
   });
-
   return response.data;
 }

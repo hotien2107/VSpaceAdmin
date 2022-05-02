@@ -2,19 +2,25 @@ import type{ OfficeInterface } from "../../../../types/office";
 
 export interface OfficeListProxyParamsInterface {
   page?: number;
-  size?: number;
+  limit?: number;
+  "name[startsWith]"?: string;
+  sort_by?:string;
 }
 
 export interface OfficeListProxyResponseInterface {
-  officeList: OfficeInterface[];
-  page: number;
-  limit: number;
-  total: number;
+  offices: OfficeInterface[];
+  pagination?: {
+    count: number;
+    page: number;
+    totalCount: number;
+  };
 }
 
 export interface OfficeListProxyTransformInterface {
   offices: OfficeInterface[];
-  page: string;
-  limit: string;
-  total: number;
+  pagination: {
+    count: number;
+    page: number;
+    totalCount: number;
+  };
 }

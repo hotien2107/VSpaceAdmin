@@ -1,3 +1,4 @@
+import { startsWith } from "lodash";
 import type {TableListItem} from "../../../../types/item";
 
 export interface ItemListProxyTransformInterface {
@@ -19,13 +20,10 @@ export interface ItemListProxyResponseInterface {
     totalCount: number;
   };
 }
-
-<<<<<<< HEAD
-interface ItemInterface {
-  id: number;
-  name: string;
-  modelPath: string;
-  createdAt: string;
+export interface ItemListProxyParamsInterface {
+  page?: number;
+  limit?: number;
+  "name[contains]"?: string;
+  "path[startsWith]"?: string;
+  sort_by?:string;
 }
-=======
->>>>>>> 480a06d457e13abb451dc8fd5288ca3c4ede3a0c

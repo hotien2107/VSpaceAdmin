@@ -20,13 +20,24 @@ const TableList: React.FC = () => {
   const [itemList, setItemList] = useState<TableListItem[]>([]);
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [countGetItemList, setCountGetItemList] = useState<number>(0);
-
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [pagination, setPagination] = useState<TableListPagination>({
+    total: 0,
+    pageSize: 0,
+    current: 1,
+    name:"",
+    modelPath:"",
+  });
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
+  const [name, setName] = useState<string>("");
+  const [path, setPath] =useState<string>("");
+  const [sorter, setSorter] = useState<string>("");
   const [isModel, setIsModel] = useState<string>('');
 
   const intl = useIntl();
@@ -88,10 +99,47 @@ const TableList: React.FC = () => {
       .finally(() => {});
   };
 
+  useEffect(() => {
+    ItemListProxy({page:currentPage, limit: pageSize,"name[contains]":name, "path[startsWith]":path, sort_by:sorter})
+      .then((res) => {
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultItemFailureMessage = intl.formatMessage({
+            id: 'pages.load.fail',
+            defaultMessage: res.message ?? 'get items fail',
+          });
+          message.error(defaultItemFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          setItemList(res.data?.items ?? []);
+          if (res?.data?.pagination) {
+            setPagination({
+              total: res?.data?.pagination?.totalCount ?? 0,
+              pageSize: pageSize,
+              current: res?.data?.pagination?.page ?? 1,
+              name:"",
+              modelPath:"",
+            });
+          }
+        }
+      })
+      .catch((err) => {
+        const defaultItemFailureMessage = intl.formatMessage({
+          id: 'pages.load.fail',
+          defaultMessage: err ?? 'get items fail',
+        });
+        message.error(defaultItemFailureMessage);
+      });
+  }, [intl, countGetItemList, currentPage, pageSize, name, path,sorter]);
+
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: 'Name Model',
+      title: 'Name',
       dataIndex: 'name',
+      sorter: {
+        multiple: 1,
+      },
       render: (dom, entity) => {
         return (
           <a
@@ -106,13 +154,15 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: 'Link model',
+      title: 'Model Path',
       dataIndex: 'modelPath',
       renderText: (text: string) => <a href={text}>{text}</a>,
     },
     {
       title: 'Date',
-      sorter: true,
+      sorter: {
+        multiple: 2,
+      },
       dataIndex: 'createdAt',
       valueType: 'dateTime',
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
@@ -147,32 +197,6 @@ const TableList: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    ItemListProxy()
-      .then((res) => {
-        console.log (res);
-        if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultItemFailureMessage = intl.formatMessage({
-            id: 'pages.load.fail',
-            defaultMessage: res.message ?? 'get items fail',
-          });
-          message.error(defaultItemFailureMessage);
-          return;
-        }
-
-        if (res.status === ProxyStatusEnum.SUCCESS) {
-          setItemList(res.data?.items ?? []);
-        }
-      })
-      .catch((err) => {
-        const defaultItemFailureMessage = intl.formatMessage({
-          id: 'pages.load.fail',
-          defaultMessage: err ?? 'get items fail',
-        });
-        message.error(defaultItemFailureMessage);
-      });
-  }, [intl, countGetItemList]);
-
   return (
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
@@ -180,7 +204,19 @@ const TableList: React.FC = () => {
         actionRef={actionRef}
         rowKey="id"
         search={{
-          labelWidth: 120,
+          labelWidth: 80,
+        }}
+        request={(params, sorter) => {
+          setName(params?.name);
+          setPath(params?.modelPath);
+          let nameSorter:string="";
+          nameSorter= sorter.name && sorter.name ==="ascend"?"name":"-name";
+          let createAtSorter:string="";
+          createAtSorter= sorter.createAt && sorter.createAt ==="ascend"?"create_at":"-create_at";
+          setSorter(nameSorter+","+createAtSorter);
+          return Promise.resolve({
+            success: true,
+          });
         }}
         toolBarRender={() => [
           <Button
@@ -198,7 +234,20 @@ const TableList: React.FC = () => {
         rowSelection={{
           onChange: (_, selectedRows) => {
             setSelectedRows(selectedRows);
-            console.log(selectedRows);
+          },
+        }}
+        pagination={{
+          pageSize: pageSize,
+          total: pagination.total,
+          current: pagination.current,
+          showSizeChanger: true,
+          pageSizeOptions: ["5", "10", "20", "50", "100"],
+          onShowSizeChange: (page, pageSize) => {
+            console.log(pageSize);
+            setPageSize(pageSize);
+          },
+          onChange: (page) => {
+            setCurrentPage(page);
           },
         }}
       />
@@ -308,7 +357,7 @@ const TableList: React.FC = () => {
       >
         {currentRow?.name && (
           <ProDescriptions<TableListItem>
-            column={2}
+            column={1}
             title={currentRow?.name}
             request={async () => ({
               data: currentRow || {},

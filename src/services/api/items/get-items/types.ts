@@ -14,3 +14,11 @@ export interface GetItemApiResponseInterface {
   errors?: string[];
   status?: string;
 }
+
+export interface ItemListParamsInterface {
+  page?: number;
+  limit?: number;
+  "name[contains]"?: string;
+  "path[startsWith]"?: string;
+  sort_by?:string;
+}

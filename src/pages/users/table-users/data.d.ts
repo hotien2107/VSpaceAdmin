@@ -14,6 +14,9 @@ export type TableUsersPagination = {
   total: number;
   pageSize: number;
   current: number;
+  name:string;
+  email:string;
+  status:string;
 };
 
 export type TableUsersData = {

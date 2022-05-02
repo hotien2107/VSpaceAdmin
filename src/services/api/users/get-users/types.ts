@@ -27,4 +27,8 @@ interface UserInterface {
 export interface GetUsersParamsInterface {
   page?: number;
   limit?: number;
+  "email[contains]"?: string;
+  "name[startsWith]"?: string;
+  status?:string;
+  sort_by?:string;
 }
