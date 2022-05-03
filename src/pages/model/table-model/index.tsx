@@ -319,7 +319,7 @@ const TableList: React.FC = () => {
               axios
                 .post('https://api.vispace.tech/api/v1/uploads/model', fmData, config)
                 .then((res) => {
-                  if (!res?.data?.code) {
+                  if (res?.data?.code && res?.data?.code ===200) {
                     setIsModel(res?.data?.data?.url ?? '');
                     message.success('Upload model success!');
                   } else {

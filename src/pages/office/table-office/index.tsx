@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer } from 'antd';
+import { Button, message, Input, Drawer, Modal } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
@@ -14,6 +14,7 @@ import CreateOfficeProxy from '@/services/proxy/offices/create-office';
 import GetOfficeListProxy from '@/services/proxy/offices/office-list';
 import UpdateOfficeProxy from '@/services/proxy/offices/update-office';
 import OfficeDetailProxy from '@/services/proxy/offices/office-detail';
+import DeleteOfficeProxy from '@/services/proxy/offices/delete-office';
 
 
 const OfficeTable: React.FC = () => {
@@ -25,6 +26,7 @@ const OfficeTable: React.FC = () => {
     current: 1,
     name:"",
   });
+  const [blockModalVisible, handleBlockModalVisible] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
@@ -112,6 +114,8 @@ const OfficeTable: React.FC = () => {
         <a
           key="view"
           onClick={() => {
+            handleBlockModalVisible(true);
+            setCurrentRow(record);
           }}
         >
           Block
@@ -172,6 +176,7 @@ const OfficeTable: React.FC = () => {
         <a
           key="view2"
           onClick={() => {
+
           }}
         >
           Block
@@ -279,6 +284,39 @@ const OfficeTable: React.FC = () => {
           defaultMessage: err.message ?? 'get detail office fail',
         });
         message.error(defaultOfficeFailureMessage);
+      })
+      .finally(() => { });
+  };
+
+  const deleteOffice = (id: number) => {
+    DeleteOfficeProxy({
+      id: id
+    })
+      .then((res) => {
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultOfficeFailureMessage = intl.formatMessage({
+            id: 'pages.detail.fail',
+            defaultMessage: res.message ?? 'block office fail',
+          });
+          message.error('block office fail');
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultOfficeSuccessMessage = intl.formatMessage({
+            id: 'pages.detail.success',
+            defaultMessage: 'Success!',
+          });
+          message.success("success");
+
+        }
+      })
+      .catch((err) => {
+        const defaultOfficeFailureMessage = intl.formatMessage({
+          id: 'pages.detail.fail',
+          defaultMessage: err.message ?? 'block office fail',
+        });
+        message.error('block office fail');
       })
       .finally(() => { });
   };
@@ -462,6 +500,21 @@ const OfficeTable: React.FC = () => {
           label="Name office"
         />
       </ModalForm>
+      <Modal
+        title="Basic Modal"
+        visible={blockModalVisible}
+        onOk={() => {
+          handleBlockModalVisible(false);
+          if (currentRow) {
+            deleteOffice(currentRow?.id);
+          }
+        }}
+        onCancel={() => {
+          handleBlockModalVisible(false);
+        }}
+      >
+        <p>Do you want to block this office?</p>
+      </Modal>
       <Drawer
         width={600}
         visible={showDetail}
