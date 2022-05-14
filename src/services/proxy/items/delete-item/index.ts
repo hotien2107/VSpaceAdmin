@@ -11,7 +11,7 @@ const DeleteItemTransform = (
   res: DeleteItemProxyTransformInterface,
 ): DeleteItemProxyResponseInterface => {
   const transform = {
-    code: res.code
+    id: res.id
   };
 
   return transform;
@@ -29,7 +29,7 @@ const DeleteItemProxy = async (params:ItemParamsInterface): Promise<ProxyFuncTyp
     };
   }
 
-  const DeleteItemRespTransformed = DeleteItemTransform(res);
+  const DeleteItemRespTransformed = DeleteItemTransform(res?.data);
   return {
     status: ProxyStatusEnum.SUCCESS,
     data: DeleteItemRespTransformed,

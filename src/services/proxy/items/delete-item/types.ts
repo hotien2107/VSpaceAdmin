@@ -3,9 +3,9 @@ export interface ItemParamsInterface {
 }
 
 export interface DeleteItemProxyTransformInterface {
-  code: number
+  id:number
 }
 
 export interface DeleteItemProxyResponseInterface {
-  code: number
+  id: number
 }

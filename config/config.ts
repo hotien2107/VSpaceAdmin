@@ -61,6 +61,12 @@ export default defineConfig({
       component: './office/table-office',
     },
     {
+      path: '/item-category',
+      icon: 'table',
+      name: 'Item Category',
+      component: './item-category/table-category',
+    },
+    {
       path: '/user',
       layout: false,
       routes: [

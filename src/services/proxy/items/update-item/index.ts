@@ -1,9 +1,9 @@
-import { createItem } from '@/services/api/items/create-item';
 import type { ProxyFuncType } from '../../../../types/http/proxy/ProxyFuncType';
 import { ProxyStatusEnum } from '../../../../types/http/proxy/ProxyStatus';
 import type { CreateItemProxyResponseInterface, CreateItemProxyTransformInterface, ItemParamsInterface } from './types';
+import { updateItem } from '@/services/api/items/update-item';
 
-const createItemTransform = (
+const transform = (
   res: CreateItemProxyTransformInterface,
 ): CreateItemProxyResponseInterface => {
   const transform = {
@@ -13,8 +13,8 @@ const createItemTransform = (
   return transform;
 };
 
-const CreateItemProxy = async (params: ItemParamsInterface): Promise<ProxyFuncType<CreateItemProxyResponseInterface>> => {
-  const res = await createItem(params);
+const UpdateItemProxy = async (params: ItemParamsInterface): Promise<ProxyFuncType<CreateItemProxyResponseInterface>> => {
+  const res = await updateItem(params);
 
   if (res?.code && res.code !== 200) {
     return {
@@ -25,11 +25,11 @@ const CreateItemProxy = async (params: ItemParamsInterface): Promise<ProxyFuncTy
     };
   }
 
-  const userListRespTransformed = createItemTransform(res);
+  const respTransformed = transform(res);
   return {
     status: ProxyStatusEnum.SUCCESS,
-    data: userListRespTransformed,
+    data: respTransformed,
   };
 };
 
-export default CreateItemProxy;
+export default UpdateItemProxy;

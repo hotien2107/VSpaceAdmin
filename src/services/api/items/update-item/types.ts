@@ -1,6 +1,7 @@
 import { ItemInterface } from "@/types/item";
 
 export interface ItemParamsInterface {
+  id:number;
   name: string;
   modelPath: string;
   image:string;
@@ -9,7 +10,7 @@ export interface ItemParamsInterface {
 
 export interface CreateItemApiResponseInterface {
     data: {
-      item: ItemInterface;
+      items: ItemInterface;
     };
     code?: number;
     message?: string;

@@ -1,21 +1,22 @@
 import CreateItemProxy from '@/services/proxy/items/create-item';
 import DeleteItemProxy from '@/services/proxy/items/delete-item';
 import ItemListProxy from '@/services/proxy/items/get-items';
+import UpdateItemProxy from '@/services/proxy/items/update-item';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
-import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { CategoryInterface } from '@/types/item';
+import { PlusOutlined } from '@ant-design/icons';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
-import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Drawer, Input, message, Upload } from 'antd';
-import axios from 'axios';
+import { Button, Drawer, Input, message } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useIntl } from 'umi';
+import type { TableListItem, TableListPagination, InputForm, FilterInterface } from './data.d';
+import CreateForm from './components/CreateForm';
 import UpdateForm from './components/UpdateForm';
-import type { TableListItem, TableListPagination } from './data.d';
-
+import CategoryListProxy from '@/services/proxy/item-categories/get-item-categories';
 const TableList: React.FC = () => {
   const [itemList, setItemList] = useState<TableListItem[]>([]);
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
@@ -26,28 +27,33 @@ const TableList: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [filter, setFilter] = useState<FilterInterface[]>([]);
   const [pagination, setPagination] = useState<TableListPagination>({
     total: 0,
     pageSize: 0,
     current: 1,
-    name:"",
-    modelPath:"",
+    name: "",
+    modelPath: "",
   });
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const [name, setName] = useState<string>("");
-  const [path, setPath] =useState<string>("");
+  const [path, setPath] = useState<string>("");
   const [sorter, setSorter] = useState<string>("");
-  const [isModel, setIsModel] = useState<string>('');
+
 
   const intl = useIntl();
 
-  const handleCreate = (data: string) => {
+  const handleCreate = (value:InputForm) => {
+    console.log(value);
     CreateItemProxy({
-      name: data,
-      modelPath: isModel ? isModel : '',
+      name: value.name,
+      modelPath: value.modelPath,
+      image: value.image,
+      categoryId: value.categoryId,
     })
       .then((res) => {
+        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           message.error('Create item fail');
           return;
@@ -62,7 +68,7 @@ const TableList: React.FC = () => {
       .catch((err) => {
         message.error('Create item fail', err);
       })
-      .finally(() => {});
+      .finally(() => { });
   };
 
   const deleteItem = (id: number) => {
@@ -96,12 +102,56 @@ const TableList: React.FC = () => {
         });
         message.error(defaultItemFailureMessage);
       })
-      .finally(() => {});
+      .finally(() => { });
+  };
+
+  const updateItem = (values: InputForm, id: number) => {
+    console.log(id);
+    console.log(values);
+    UpdateItemProxy({
+      id: id,
+      name: values.name,
+      modelPath: values.modelPath,
+      image: values.image,
+      categoryId: values.categoryId,
+    })
+      .then((res) => {
+        console.log(res)
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultCategoryFailureMessage = intl.formatMessage({
+            id: 'pages.update.fail',
+            defaultMessage: res.message ?? 'Update Item fail',
+          });
+          message.error(defaultCategoryFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultCategorySuccessMessage = intl.formatMessage({
+            id: 'pages.update.success',
+            defaultMessage: 'Success!',
+          });
+          message.success(defaultCategorySuccessMessage);
+          setCountGetItemList(countGetItemList + 1);
+          setCurrentRow(undefined);
+          handleUpdateModalVisible(false);
+          return;
+        }
+      })
+      .catch((err) => {
+        const defaultCategoryFailureMessage = intl.formatMessage({
+          id: 'pages.update.fail',
+          defaultMessage: err.message ?? 'Update Item fail',
+        });
+        message.error(defaultCategoryFailureMessage);
+      })
+      .finally(() => { });
   };
 
   useEffect(() => {
-    ItemListProxy({page:currentPage, limit: pageSize,"name[contains]":name, "path[startsWith]":path, sort_by:sorter})
+    ItemListProxy({ page: currentPage, limit: pageSize, "name[contains]": name, "path[startsWith]": path, sort_by: sorter })
       .then((res) => {
+        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultItemFailureMessage = intl.formatMessage({
             id: 'pages.load.fail',
@@ -118,8 +168,8 @@ const TableList: React.FC = () => {
               total: res?.data?.pagination?.totalCount ?? 0,
               pageSize: pageSize,
               current: res?.data?.pagination?.page ?? 1,
-              name:"",
-              modelPath:"",
+              name: "",
+              modelPath: "",
             });
           }
         }
@@ -131,7 +181,31 @@ const TableList: React.FC = () => {
         });
         message.error(defaultItemFailureMessage);
       });
-  }, [intl, countGetItemList, currentPage, pageSize, name, path,sorter]);
+
+      CategoryListProxy({})
+      .then((res) => {
+        if (res.status === ProxyStatusEnum.FAIL) {
+          message.error("Don't load category list");
+          return;
+        }
+  
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          let list: Array<FilterInterface> = [];
+          res?.data?.itemCategories.map((item) => {
+            let tmp: FilterInterface = {
+              value: item.id,
+              text: item.name
+            }
+            list.push(tmp);
+          })
+          setFilter(list);
+        }
+      })
+      .catch((err) => {
+        message.error("Don't load category list");
+      });
+  }, [intl, countGetItemList, currentPage, pageSize, name, path, sorter]);
+
 
   const columns: ProColumns<TableListItem>[] = [
     {
@@ -157,6 +231,18 @@ const TableList: React.FC = () => {
       title: 'Model Path',
       dataIndex: 'modelPath',
       renderText: (text: string) => <a href={text}>{text}</a>,
+    },
+    {
+      title: 'Image',
+      dataIndex: 'image',
+      renderText: (text: string) => <img src={text} alt="model" width={40} height={40} />,
+    },
+    {
+      title: 'Category',
+      dataIndex: 'category',
+      filters: filter,
+      onFilter: true,
+      renderText: (text: CategoryInterface) => <p>{text.name}</p>,
     },
     {
       title: 'Date',
@@ -193,6 +279,15 @@ const TableList: React.FC = () => {
         >
           Detail
         </a>,
+        <a
+          key="config"
+          onClick={() => {
+            setCurrentRow(record);
+            handleUpdateModalVisible(true);
+          }}
+        >
+          Update
+        </a>,
       ],
     },
   ];
@@ -206,14 +301,15 @@ const TableList: React.FC = () => {
         search={{
           labelWidth: 80,
         }}
-        request={(params, sorter) => {
+        request={(params, sorter, filter) => {
+          console.log(filter);
           setName(params?.name);
           setPath(params?.modelPath);
-          let nameSorter:string="";
-          nameSorter= sorter.name && sorter.name ==="ascend"?"name":"-name";
-          let createAtSorter:string="";
-          createAtSorter= sorter.createAt && sorter.createAt ==="ascend"?"create_at":"-create_at";
-          setSorter(nameSorter+","+createAtSorter);
+          let nameSorter: string = "";
+          nameSorter = sorter.name && sorter.name === "ascend" ? "name" : "-name";
+          let createAtSorter: string = "";
+          createAtSorter = sorter.createAt && sorter.createAt === "ascend" ? "create_at" : "-create_at";
+          setSorter(nameSorter + "," + createAtSorter);
           return Promise.resolve({
             success: true,
           });
@@ -273,79 +369,17 @@ const TableList: React.FC = () => {
           <Button type="primary">No</Button>
         </FooterToolbar>
       )}
-      <ModalForm
-        title="Create model"
-        width="400px"
-        visible={createModalVisible}
-        onVisibleChange={handleModalVisible}
-        onFinish={async (value) => {
-          handleCreate(value.name);
-        }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: 'Name is required',
-            },
-          ]}
-          width="md"
-          name="name"
-          placeholder="Enter name..."
-          label="Name model"
-        />
-
-        <Upload
-          name="model"
-          accept=".glb, .gltf"
-          showUploadList={false}
-          customRequest={(options) => {
-            const { file } = options;
-            const fmData = new FormData();
-            const config = {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-                'Content-Type': 'multipart/form-data',
-              },
-            };
-
-            if (file instanceof Blob) {
-              const fileConvert = new File([file], 'model', {
-                type: file?.type !== '' ? file?.type : 'model/gltf-binary',
-              });
-              fmData.append('model', fileConvert);
-            }
-            try {
-              axios
-                .post('https://api.vispace.tech/api/v1/uploads/model', fmData, config)
-                .then((res) => {
-                  if (res?.data?.code && res?.data?.code ===200) {
-                    setIsModel(res?.data?.data?.url ?? '');
-                    message.success('Upload model success!');
-                  } else {
-                    console.log('error', res);
-                    message.error('Upload model failed!');
-                  }
-                });
-            } catch (err) {
-              console.log('Eroor: ', err);
-            }
-          }}
-        >
-          <Button icon={<UploadOutlined />}>Click to upload model</Button>
-        </Upload>
-      </ModalForm>
-      <UpdateForm
-        onSubmit={async (value) => {
-          console.log(value);
-        }}
-        onCancel={() => {
-          handleUpdateModalVisible(false);
-          setCurrentRow(undefined);
-        }}
-        updateModalVisible={updateModalVisible}
-        values={currentRow || {}}
+      <CreateForm
+      modalVisible={createModalVisible}
+      handleModalVisible={handleModalVisible}
+      onSubmit={handleCreate}
       />
+           {currentRow? <UpdateForm
+      modalVisible={updateModalVisible}
+      handleModalVisible={handleUpdateModalVisible}
+      onSubmit={updateItem}
+      currentItem={currentRow}
+      />:<></>}
       <Drawer
         width={600}
         visible={showDetail}

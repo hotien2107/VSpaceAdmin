@@ -1,9 +1,10 @@
-import { startsWith } from "lodash";
-import type {TableListItem} from "../../../../types/item";
+
+import { ItemInterface } from "@/types/item";
+import { PaginationInterface } from "@/types/Pagination";
 
 export interface ItemListProxyTransformInterface {
   data: {
-    items: TableListItem[];
+    items: ItemInterface[];
     pagination: {
       count: number;
       page: number;
@@ -13,17 +14,14 @@ export interface ItemListProxyTransformInterface {
 }
 
 export interface ItemListProxyResponseInterface {
-  items: TableListItem[];
-  pagination: {
-    count: number;
-    page: number;
-    totalCount: number;
-  };
+  items: ItemInterface[];
+  pagination: PaginationInterface
 }
 export interface ItemListProxyParamsInterface {
   page?: number;
   limit?: number;
   "name[contains]"?: string;
   "path[startsWith]"?: string;
+  category_id?: string;
   sort_by?:string;
 }

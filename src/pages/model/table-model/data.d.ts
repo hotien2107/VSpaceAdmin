@@ -1,8 +1,19 @@
+import { CategoryInterface } from "@/types/item";
+
 export type TableListItem = {
   id: number;
   name: string;
-  path: string;
+  modelPath: string;
+  image:string;
+  category: CategoryInterface;
   createdAt: string;
+};
+
+export type InputForm = {
+  name: string;
+  modelPath: string;
+  image:string;
+  categoryId: number;
 };
 
 export type TableListPagination = {
@@ -13,18 +24,7 @@ export type TableListPagination = {
   modelPath: string;
 };
 
-export type TableListData = {
-  list: TableListItem[];
-  pagination: Partial<TableListPagination>;
-};
-
-export type TableListParams = {
-  status?: string;
-  name?: string;
-  desc?: string;
-  key?: number;
-  pageSize?: number;
-  currentPage?: number;
-  filter?: Record<string, any[]>;
-  sorter?: Record<string, any>;
-};
+export type FilterInterface = {
+  value: number;
+  text: string;
+}

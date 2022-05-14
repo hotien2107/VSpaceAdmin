@@ -4,6 +4,9 @@ export interface ItemParamsInterface {
 
 
 export interface DeleteItemApiResponseInterface {
+    data:{
+      id:number;
+    }
     code: number;
     message?: string;
     errors?: string[];
