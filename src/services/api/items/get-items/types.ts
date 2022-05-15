@@ -1,8 +1,8 @@
-import type { TableListItem } from "@/types/item";
+import type { ItemInterface } from "@/types/item";
 
 export interface GetItemApiResponseInterface {
   data: {
-    items: TableListItem[];
+    items: ItemInterface[];
     pagination: {
       count: number;
       page: number;
@@ -20,5 +20,6 @@ export interface ItemListParamsInterface {
   limit?: number;
   "name[contains]"?: string;
   "path[startsWith]"?: string;
+  category_id?:string;
   sort_by?:string;
 }

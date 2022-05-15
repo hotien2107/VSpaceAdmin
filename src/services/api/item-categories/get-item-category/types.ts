@@ -1,4 +1,4 @@
-import { ItemInterface } from "@/types/item";
+import { ItemCategoryInterface } from "@/types/item-category";
 
 export interface ItemParamsInterface {
   id: number;
@@ -6,12 +6,11 @@ export interface ItemParamsInterface {
 
 export interface GetItemApiResponseInterface {
     data: {
-      items: ItemInterface;
+      itemCategory: ItemCategoryInterface;
     };
     code?: number;
     message?: string;
     errors?: string[];
     status?: string;
   }
-  
   

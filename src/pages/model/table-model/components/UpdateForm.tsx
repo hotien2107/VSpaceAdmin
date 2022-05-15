@@ -1,158 +1,201 @@
-import React from 'react';
-import { Modal } from 'antd';
-import {
-  ProFormSelect,
-  ProFormText,
-  ProFormTextArea,
-  StepsForm,
-  ProFormRadio,
-  ProFormDateTimePicker,
-} from '@ant-design/pro-form';
-import type { TableListItem } from '../type';
+import React, { useState, useEffect } from 'react';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
+import { Button,message, Upload } from 'antd';
+import type { InputForm } from "../data";
+import {  UploadOutlined } from '@ant-design/icons';
+import CategoryListProxy from '@/services/proxy/item-categories/get-item-categories';
+import { Select } from 'antd';
+const { Option } = Select;
+import axios from 'axios';
+import { CategoryInterface, ItemInterface } from '@/types/item';
+import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
 
-export type FormValueType = {
-  target?: string;
-  template?: string;
-  type?: string;
-  time?: string;
-  frequency?: string;
-} & Partial<TableListItem>;
 
-export type UpdateFormProps = {
-  onCancel: (flag?: boolean, formVals?: FormValueType) => void;
-  onSubmit: (values: FormValueType) => Promise<void>;
-  updateModalVisible: boolean;
-  values: Partial<TableListItem>;
+
+type UpdateFormProps = {
+  modalVisible: boolean;
+  handleModalVisible: (value: boolean | ((prevVar: boolean) => boolean)) => void;
+  onSubmit:(values:InputForm, id: number)=>void;
+  currentItem: ItemInterface;
 };
 
-const UpdateForm: React.FC<UpdateFormProps> = (props) => {
+const CreateForm: React.FC<UpdateFormProps> = (props) => {
+  const { modalVisible, onSubmit, handleModalVisible, currentItem } = props;
+  const [isModel, setIsModel] = useState<string>(currentItem.modelPath);
+  const [isImage, setIsImage] = useState<string>(currentItem.image);
+  const [isCategoryId, setIsCategoryId] = useState<number>(currentItem?.category.id);
+  const [categoryList, setCategoryList] = useState<CategoryInterface[]>();
+  const [isLoadSelection, setIsLoadSelection] = useState<boolean>(false);
+
+  useEffect(()=>{
+    CategoryListProxy({})
+    .then((res) => {
+      if (res.status === ProxyStatusEnum.FAIL) {
+        message.error("Don't load category list");
+        return;
+      }
+
+      if (res.status === ProxyStatusEnum.SUCCESS) {
+        let list: Array<CategoryInterface> = [];
+        res?.data?.itemCategories.map((item) => {
+          let tmp: CategoryInterface = {
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            createdAt: item.createdAt,
+          }
+          list.push(tmp);
+        })
+        console.log(list);
+        setCategoryList(list);
+      }
+    })
+    .catch((err) => {
+      message.error("Don't load category list");
+    });
+  },[isLoadSelection])
+
+  const hanldeChangeSelection = () =>{
+    setIsLoadSelection(!isLoadSelection);
+  }
+
   return (
-    <StepsForm
-      stepsProps={{
-        size: 'small',
+    <ModalForm
+    title="Create model"
+    width="400px"
+    visible={modalVisible}
+    onVisibleChange={handleModalVisible}
+    onFinish={async (value) => {
+      const tmp:InputForm ={
+        name: value.name,
+        categoryId: isCategoryId,
+        image: isImage,
+        modelPath: isModel,
+      }
+      onSubmit(tmp,currentItem?.id);
+    }}
+  >
+    <ProFormText
+      rules={[
+        {
+          required: true,
+          message: 'Name is required',
+        },
+      ]}
+      width="md"
+      name="name"
+      placeholder="Enter name..."
+      label="Name model"
+      initialValue={currentItem?.name}
+    />
+
+    <ProFormText
+      width="md"
+      name="model"
+      label="Model Path"
+      placeholder={isModel}
+      className='custom-input-text'
+      initialValue={currentItem?.modelPath}
+    />
+
+    <Upload
+      name="model"
+      accept=".glb, .gltf"
+      showUploadList={false}
+      customRequest={(options) => {
+        const { file } = options;
+        const fmData = new FormData();
+        const config = {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        };
+
+        if (file instanceof Blob) {
+          const fileConvert = new File([file], 'model', {
+            type: file?.type !== '' ? file?.type : 'model/gltf-binary',
+          });
+          fmData.append('model', fileConvert);
+        }
+        try {
+          axios
+            .post('https://api.vispace.tech/api/v1/uploads/model', fmData, config)
+            .then((res) => {
+              if (res?.data?.code && res?.data?.code === 200) {
+                setIsModel(res?.data?.data?.url ?? '');
+                message.success('Upload model success!');
+              } else {
+                console.log('error', res);
+                message.error('Upload model failed!');
+              }
+            });
+        } catch (err) {
+          console.log('Eroor: ', err);
+        }
       }}
-      stepsFormRender={(dom, submitter) => {
-        return (
-          <Modal
-            width={640}
-            bodyStyle={{
-              padding: '32px 40px 48px',
-            }}
-            destroyOnClose
-            title="Update"
-            visible={props.updateModalVisible}
-            footer={submitter}
-            onCancel={() => {
-              props.onCancel();
-            }}
-          >
-            {dom}
-          </Modal>
-        );
-      }}
-      onFinish={props.onSubmit}
     >
-      <StepsForm.StepForm
-        initialValues={{
-          name: props.values.name,
-        }}
-        title="search"
-      >
-        <ProFormText
-          name="name"
-          label="hi"
-          width="md"
-          rules={[
-            {
-              required: true,
-              message: 'hi',
-            },
-          ]}
-        />
-        <ProFormTextArea
-          name="desc"
-          width="md"
-          label="hi"
-          placeholder="hi"
-          rules={[
-            {
-              required: true,
-              message: 'hi',
-              min: 5,
-            },
-          ]}
-        />
-      </StepsForm.StepForm>
-      <StepsForm.StepForm
-        initialValues={{
-          target: '0',
-          template: '0',
-        }}
-        title="hi"
-      >
-        <ProFormSelect
-          name="target"
-          width="md"
-          label="hi"
-          valueEnum={{
-            0: 'hi',
-            1: 'i',
-          }}
-        />
-        <ProFormSelect
-          name="template"
-          width="md"
-          label="规则模板"
-          valueEnum={{
-            0: '规则模板一',
-            1: '规则模板二',
-          }}
-        />
-        <ProFormRadio.Group
-          name="type"
-          label="规则类型"
-          options={[
-            {
-              value: '0',
-              label: '强',
-            },
-            {
-              value: '1',
-              label: '弱',
-            },
-          ]}
-        />
-      </StepsForm.StepForm>
-      <StepsForm.StepForm
-        initialValues={{
-          type: '1',
-          frequency: 'month',
-        }}
-        title="设定调度周期"
-      >
-        <ProFormDateTimePicker
-          name="time"
-          width="md"
-          label="开始时间"
-          rules={[
-            {
-              required: true,
-              message: '请选择开始时间！',
-            },
-          ]}
-        />
-        <ProFormSelect
-          name="frequency"
-          label="监控对象"
-          width="md"
-          valueEnum={{
-            month: '月',
-            week: '周',
-          }}
-        />
-      </StepsForm.StepForm>
-    </StepsForm>
+      <Button icon={<UploadOutlined />}>Click to upload model</Button>
+    </Upload>
+    <ProFormText
+      className='custom-input-text'
+      width="md"
+      name="image"
+      placeholder={isImage}
+      label="Image Link"
+      initialValue={currentItem?.image}
+    />
+    <Upload
+      name="img"
+      listType="picture"
+      showUploadList={false}
+      // onChange={handleAvatarChange}
+      customRequest={(options) => {
+        const { file } = options;
+        const fmData = new FormData();
+        const config = {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        };
+
+        fmData.append('image', file);
+        try {
+          axios
+            .post('https://api.vispace.tech/api/v1/uploads/image', fmData, config)
+            .then((res) => {
+              console.log(res);
+              if (res?.data?.code && res?.data?.code === 200) {
+                console.log(res?.data?.data?.url);
+                setIsImage(res?.data?.data?.url ?? isImage);
+                message.success('Upload image success!');
+              } else {
+                console.log('error', res);
+                message.error('Upload image failed!');
+              }
+            });
+        } catch (err) {
+          console.log('Eroor: ', err);
+        }
+      }}
+      accept=".png,.jpg,.jpeg"
+    >
+      <Button icon={<UploadOutlined />}>Click to upload image</Button>
+    </Upload>
+    <Select 
+      defaultValue={currentItem?.category?.name}
+      style={{ width: 240, marginTop: "1rem", display: "block" }} 
+      onChange={(value) => setIsCategoryId(Number.parseInt(value))}
+      onDropdownVisibleChange={hanldeChangeSelection} >
+      {categoryList && categoryList.map((category)=>(
+        <Option key={category.id.toString()}>{category.name}</Option>
+      ))
+
+      }
+    </Select>
+  </ModalForm>
   );
 };
 
-export default UpdateForm;
+export default CreateForm;

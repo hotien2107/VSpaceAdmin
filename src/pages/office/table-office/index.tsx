@@ -1,18 +1,14 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer, Modal } from 'antd';
+import { message, Input, Drawer, Modal } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { TableListItem, TableListPagination, OfficeDetail } from './data.d';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
 import { useIntl } from "umi";
-import CreateOfficeProxy from '@/services/proxy/offices/create-office';
 import GetOfficeListProxy from '@/services/proxy/offices/office-list';
-import UpdateOfficeProxy from '@/services/proxy/offices/update-office';
 import OfficeDetailProxy from '@/services/proxy/offices/office-detail';
 import DeleteOfficeProxy from '@/services/proxy/offices/delete-office';
 
@@ -28,12 +24,9 @@ const OfficeTable: React.FC = () => {
   });
   const [blockModalVisible, handleBlockModalVisible] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const [currentOffice, setCurrentOffice] = useState<OfficeDetail>();
   const [countHanlde, setCountHandle] = useState<number>(0);
 
@@ -103,15 +96,6 @@ const OfficeTable: React.FC = () => {
           Detail
         </a>,
         <a
-          key="config"
-          onClick={() => {
-            handleUpdateModalVisible(true);
-            setCurrentRow(record);
-          }}
-        >
-          Update
-        </a>,
-        <a
           key="view"
           onClick={() => {
             handleBlockModalVisible(true);
@@ -159,21 +143,6 @@ const OfficeTable: React.FC = () => {
       valueType: 'option',
       render: (_, record) => [
         <a
-          key="config1"
-          onClick={() => {
-            const tmp: TableListItem = {
-              id: record.id,
-              name: record.name,
-              createdAt: record.createdAt,
-              nameUser: record.createdBy.name
-            }
-            setCurrentRow(tmp);
-            handleUpdateModalVisible(true);
-          }}
-        >
-          Update
-        </a>,
-        <a
           key="view2"
           onClick={() => {
 
@@ -184,77 +153,6 @@ const OfficeTable: React.FC = () => {
       ],
     },
   ];
-
-  const handleCreate = (data: string) => {
-    CreateOfficeProxy({
-      name: data,
-    })
-      .then((res) => {
-        console.log(res)
-        if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultOfficeFailureMessage = intl.formatMessage({
-            id: 'pages.create.fail',
-            defaultMessage: res.message ?? 'create Office fail',
-          });
-          message.error(defaultOfficeFailureMessage);
-          return;
-        }
-
-        if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultOfficeSuccessMessage = intl.formatMessage({
-            id: 'pages.create.success',
-            defaultMessage: 'Success!',
-          });
-          message.success(defaultOfficeSuccessMessage);
-          handleModalVisible(false);
-          setCountHandle(countHanlde + 1);
-        }
-      })
-      .catch((err) => {
-        const defaultOfficeFailureMessage = intl.formatMessage({
-          id: 'pages.create.failure',
-          defaultMessage: err.message ?? 'create Office fail',
-        });
-        message.error(defaultOfficeFailureMessage);
-      })
-      .finally(() => { });
-  };
-
-  const UpdateOffice = (id: number, name: string) => {
-    UpdateOfficeProxy({
-      id: id,
-      name: name,
-    })
-      .then((res) => {
-        if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultOfficeFailureMessage = intl.formatMessage({
-            id: 'pages.update.fail',
-            defaultMessage: res.message ?? 'Update Office fail',
-          });
-          message.error(defaultOfficeFailureMessage);
-          handleUpdateModalVisible(false);
-          return;
-        }
-
-        if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultOfficeSuccessMessage = intl.formatMessage({
-            id: 'pages.update.success',
-            defaultMessage: 'Success!',
-          });
-          message.success(defaultOfficeSuccessMessage);
-          setCountHandle(countHanlde + 1);
-          GetOffice(id);
-        }
-      })
-      .catch((err) => {
-        const defaultOfficeFailureMessage = intl.formatMessage({
-          id: 'pages.update.fail',
-          defaultMessage: err.message ?? 'Update Office fail',
-        });
-        message.error(defaultOfficeFailureMessage);
-      })
-      .finally(() => { });
-  };
 
   const GetOffice = (id: number) => {
     OfficeDetailProxy({
@@ -308,7 +206,7 @@ const OfficeTable: React.FC = () => {
             defaultMessage: 'Success!',
           });
           message.success("success");
-
+          setCountHandle(countHanlde+1);
         }
       })
       .catch((err) => {
@@ -389,24 +287,8 @@ const OfficeTable: React.FC = () => {
             success: true,
           });
         }}
-        toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              handleModalVisible(true);
-            }}
-          >
-            <PlusOutlined /> Create
-          </Button>,
-        ]}
         dataSource={itemList}
         columns={columns}
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-          },
-        }}
         pagination={{
           pageSize: pageSize,
           total: pagination.total,
@@ -421,85 +303,6 @@ const OfficeTable: React.FC = () => {
           },
         }}
       />
-      {selectedRowsState?.length > 0 && (
-        <FooterToolbar
-          extra={
-            <div>
-              <span>
-                Are you sure want to delete this model?
-
-              </span>
-            </div>
-          }
-        >
-          <Button
-            onClick={async () => {
-              selectedRowsState.map((item) => {
-                // deleteItem(item.id);
-              })
-              setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
-            }}
-          >
-            Yes
-          </Button>
-          <Button type="primary">No</Button>
-        </FooterToolbar>
-      )}
-      <ModalForm
-        title="Create model"
-        width="400px"
-        visible={createModalVisible}
-        onVisibleChange={handleModalVisible}
-        onFinish={async (value) => {
-          handleCreate(value.name);
-        }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: 'Name is required',
-            },
-          ]}
-          width="md"
-          name="name"
-          placeholder="Enter name..."
-          label="Name office"
-        />
-      </ModalForm>
-      <ModalForm
-        title="Update office"
-        width="400px"
-        visible={updateModalVisible}
-        onVisibleChange={handleUpdateModalVisible}
-        onFinish={async (value) => {
-          if (currentRow?.id) {
-            UpdateOffice(currentRow?.id, value.name);
-          }
-          else {
-            const defaultOfficeFailureMessage = intl.formatMessage({
-              id: 'pages.load.fails',
-              defaultMessage: 'Load fail',
-            });
-            message.error(defaultOfficeFailureMessage);
-          }
-        }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: 'Name is required',
-            },
-          ]}
-          width="md"
-          name="name"
-          placeholder="Enter name..."
-          initialValue={currentRow?.name}
-          label="Name office"
-        />
-      </ModalForm>
       <Modal
         title="Basic Modal"
         visible={blockModalVisible}

@@ -24,11 +24,13 @@ const Login: React.FC = () => {
   const { initialState, setInitialState } = useModel('@@initialState');
 
   const handleSubmit = (values: LoginFormValues) => {
+    console.log(values);
     LoginProxy({
       email: values.email,
       password: values.password,
     })
       .then((res) => {
+        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultLoginFailureMessage = intl.formatMessage({
             id: 'pages.login.failure',
@@ -43,13 +45,11 @@ const Login: React.FC = () => {
             id: 'pages.login.success',
             defaultMessage: 'Success!',
           });
-          message.success(defaultLoginSuccessMessage);
           saveDataLocal('user_id', res.data.userInfo.id.toString());
           saveDataLocal('user_info', JSON.stringify(res.data.userInfo));
           saveDataLocal('access_token', res.data.accessToken);
           saveDataLocal('refresh_token', res.data.refreshToken);
           dispatch(setUserInfo(res?.data.userInfo));
-          history.push('/');
           dispatch(setAuthenticated(true));
           setInitialState(() => ({
             accessToken: initialState?.accessToken,
@@ -57,6 +57,9 @@ const Login: React.FC = () => {
             isAuthenticated: true,
             user: res.data.userInfo,
           }));
+          message.success(defaultLoginSuccessMessage);
+          history.push('/');
+          return;
         }
       })
       .catch((err) => {

@@ -8,11 +8,7 @@ const ItemListTransform = (
 ): ItemListProxyResponseInterface => {
   const transform = {
       items: res.data?.items,
-      pagination: {
-        count: res.data?.pagination.count,
-        page: res.data?.pagination.page,
-        totalCount: res.data?.pagination.totalCount,
-      },
+      pagination: res?.data.pagination,
   };
 
   return transform;
