@@ -26,6 +26,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         name: value.name,
         description: value.description,
       }
+      console.log(value);
       onSubmit(currentItem?.id, category);
       handleModalVisible(false);
     }}

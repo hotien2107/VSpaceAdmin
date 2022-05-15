@@ -308,12 +308,12 @@ const CategoryTable: React.FC = () => {
         handleModalVisible={handleModalVisible}
         onSubmit={handleCreate}
       />
-      {currentRow ? <UpdateForm
+      {currentRow && <UpdateForm
         modalVisible={updateModalVisible}
         handleModalVisible={handleUpdateModalVisible}
         onSubmit={updateCategory}
         currentItem={currentRow}
-      /> : <></>}
+      />}
       <Drawer
         width={600}
         visible={showDetail}
