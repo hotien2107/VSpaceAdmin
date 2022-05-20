@@ -20,6 +20,7 @@ export interface ItemListParamsInterface {
   limit?: number;
   "name[contains]"?: string;
   "path[startsWith]"?: string;
+  "name[startsWith]"?: string;
   category_id?:string;
   sort_by?:string;
 }

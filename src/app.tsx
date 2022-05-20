@@ -32,10 +32,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     childrenRender: (children) => {
       return <Provider store={store}>{children}</Provider>;
     },
-    rightContentRender: () => <RightContent />,
+    rightContentRender: () => <Provider store={store}><RightContent /></Provider>,
     disableContentMargin: false,
     footerRender: () => <Footer />,
     onPageChange: () => {
+      console.log(!initialState?.isAuthenticated)
       if (!initialState?.isAuthenticated) {
         history.push(loginPath);
       }

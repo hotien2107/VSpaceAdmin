@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import type { InputForm } from "../data";
-import { CategoryInterface } from '@/types/item';
 
 
 
@@ -16,7 +15,7 @@ const CreateForm: React.FC<UpdateFormProps> = (props) => {
 
   return (
     <ModalForm
-    title="Update Item Category"
+    title="Update Category"
     width="400px"
     visible={modalVisible}
     onVisibleChange={handleModalVisible}
@@ -38,7 +37,7 @@ const CreateForm: React.FC<UpdateFormProps> = (props) => {
           width="md"
           name="name"
           placeholder="Enter name..."
-          label="Name Category"
+          label="Category Name"
         />
         <ProFormText
            rules={[
@@ -54,7 +53,7 @@ const CreateForm: React.FC<UpdateFormProps> = (props) => {
           width="md"
           name="description"
           placeholder="Enter description..."
-          label="Description Category"
+          label="Description"
         />
   </ModalForm>
   );

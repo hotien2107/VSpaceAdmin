@@ -28,3 +28,8 @@ export type FilterInterface = {
   value: number;
   text: string;
 }
+
+export type SelectedInterface ={
+  value: string;
+  label: string;
+}

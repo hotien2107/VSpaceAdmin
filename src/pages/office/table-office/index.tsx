@@ -10,8 +10,8 @@ import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
 import { useIntl } from "umi";
 import GetOfficeListProxy from '@/services/proxy/offices/office-list';
 import OfficeDetailProxy from '@/services/proxy/offices/office-detail';
-import DeleteOfficeProxy from '@/services/proxy/offices/delete-office';
-
+import BlockOfficeProxy from '@/services/proxy/offices/block-office';
+import UnblockOfficeProxy from '@/services/proxy/offices/upblock-office';
 
 const OfficeTable: React.FC = () => {
   const [itemList, setItemList] = useState<TableListItem[]>([]);
@@ -23,6 +23,7 @@ const OfficeTable: React.FC = () => {
     name:"",
   });
   const [blockModalVisible, handleBlockModalVisible] = useState<boolean>(false);
+  const [unblockModalVisible, handleUnblockModalVisible] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
@@ -35,6 +36,11 @@ const OfficeTable: React.FC = () => {
   const intl = useIntl();
 
   const columns: ProColumns<TableListItem>[] = [
+    {
+      dataIndex: 'index',
+      valueType: 'indexBorder',
+      width: 48,
+    },
     {
       title: 'Name',
       dataIndex: 'name',
@@ -60,7 +66,8 @@ const OfficeTable: React.FC = () => {
       renderText: (text: string) => <a>{text}</a>,
     },
     {
-      title: 'Date',
+      hideInSearch:true,
+      title: 'Created At',
       sorter: {
         multiple: 2,
       },
@@ -96,7 +103,7 @@ const OfficeTable: React.FC = () => {
           Detail
         </a>,
         <a
-          key="view"
+          key="block"
           onClick={() => {
             handleBlockModalVisible(true);
             setCurrentRow(record);
@@ -104,22 +111,38 @@ const OfficeTable: React.FC = () => {
         >
           Block
         </a>,
+         <a
+         key="unblock"
+         onClick={() => {
+           handleUnblockModalVisible(true);
+           setCurrentRow(record);
+         }}
+       >
+         Unblock
+       </a>,
       ],
     },
   ];
 
   const columnDetail: ProColumns<OfficeDetail>[] = [
     {
+      dataIndex: 'index',
+      valueType: 'indexBorder',
+      width: 48,
+    },
+    {
       title: 'Name',
       dataIndex: 'name',
     },
     {
       title: 'Invitation Code',
+      hideInSearch:true,
       dataIndex: 'invitationCode',
       renderText: (text: string) => <a>{text}</a>,
     },
     {
       title: 'Date',
+      hideInSearch:true,
       sorter: true,
       dataIndex: 'createdAt',
       valueType: 'dateTime',
@@ -140,16 +163,28 @@ const OfficeTable: React.FC = () => {
     {
       title: 'Option',
       dataIndex: 'option',
+      hideInSearch:true,
       valueType: 'option',
       render: (_, record) => [
         <a
-          key="view2"
-          onClick={() => {
-
-          }}
-        >
-          Block
-        </a>,
+        key="block"
+        onClick={() => {
+          handleBlockModalVisible(true);
+          // setCurrentRow(record);
+        }}
+      >
+        Block
+      </a>,
+       <a
+       key="unblock"
+       onClick={() => {
+         console.log("huhu");
+         handleUnblockModalVisible(true);
+        //  setCurrentRow(record);
+       }}
+     >
+       Unblock
+     </a>,
       ],
     },
   ];
@@ -186,38 +221,34 @@ const OfficeTable: React.FC = () => {
       .finally(() => { });
   };
 
-  const deleteOffice = (id: number) => {
-    DeleteOfficeProxy({
-      id: id
-    })
-      .then((res) => {
-        if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultOfficeFailureMessage = intl.formatMessage({
-            id: 'pages.detail.fail',
-            defaultMessage: res.message ?? 'block office fail',
-          });
-          message.error('block office fail');
-          return;
-        }
+  const handleBlockOffice = (id: number) => {
+    BlockOfficeProxy(id).then((res) => {
+      if (res.status === ProxyStatusEnum.FAIL) {
+        message.error('Block Office failed');
+        return;
+      }
 
-        if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultOfficeSuccessMessage = intl.formatMessage({
-            id: 'pages.detail.success',
-            defaultMessage: 'Success!',
-          });
-          message.success("success");
-          setCountHandle(countHanlde+1);
-        }
-      })
-      .catch((err) => {
-        const defaultOfficeFailureMessage = intl.formatMessage({
-          id: 'pages.detail.fail',
-          defaultMessage: err.message ?? 'block office fail',
-        });
-        message.error('block office fail');
-      })
-      .finally(() => { });
+      if (res.status === ProxyStatusEnum.SUCCESS) {
+        message.success('Block Office success');
+        setCountHandle(countHanlde + 1);
+      }
+    });
   };
+
+  const handleUnblockOffice = (id: number) => {
+    UnblockOfficeProxy(id).then((res) => {
+      if (res.status === ProxyStatusEnum.FAIL) {
+        message.error('Unblock Office failed');
+        return;
+      }
+
+      if (res.status === ProxyStatusEnum.SUCCESS) {
+        message.success('Unblock Office success');
+        setCountHandle(countHanlde + 1);
+      }
+    });
+  };
+
 
   useEffect(() => {
     GetOfficeListProxy({ page: currentPage, limit: pageSize, "name[startsWith]":name,sort_by:sorter })
@@ -271,6 +302,7 @@ const OfficeTable: React.FC = () => {
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
         headerTitle="Office Table"
+        
         actionRef={actionRef}
         rowKey="id"
         search={{
@@ -309,7 +341,7 @@ const OfficeTable: React.FC = () => {
         onOk={() => {
           handleBlockModalVisible(false);
           if (currentRow) {
-            deleteOffice(currentRow?.id);
+            handleBlockOffice(currentRow?.id)
           }
         }}
         onCancel={() => {
@@ -317,6 +349,21 @@ const OfficeTable: React.FC = () => {
         }}
       >
         <p>Do you want to block this office?</p>
+      </Modal>
+      <Modal
+        title="Unblock user"
+        visible={unblockModalVisible}
+        onOk={() => {
+          handleUnblockModalVisible(false);
+          if (currentRow) {
+            handleUnblockOffice(currentRow?.id);
+          }
+        }}
+        onCancel={() => {
+          handleUnblockModalVisible(false);
+        }}
+      >
+        <p>Do you want to unblock this user?</p>
       </Modal>
       <Drawer
         width={600}

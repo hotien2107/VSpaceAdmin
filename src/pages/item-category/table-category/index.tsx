@@ -16,8 +16,10 @@ import UpdateCategoryProxy from '@/services/proxy/item-categories/update-item-ca
 import { ItemCategoryInterface } from '@/types/item-category';
 import CreateForm from './components/CreateForm';
 import UpdateForm from './components/UpdateForm';
+import { Spin } from 'antd';
 
 const CategoryTable: React.FC = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [itemList, setItemList] = useState<TableListItem[]>([]);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pagination, setPagination] = useState<TableListPagination>({
@@ -38,13 +40,20 @@ const CategoryTable: React.FC = () => {
 
   const columns: ProColumns<TableListItem>[] = [
     {
+      dataIndex: 'index',
+      valueType: 'indexBorder',
+      width: 48,
+    },
+    {
       title: 'Name',
+      hideInSearch:true,
       dataIndex: 'name',
       render: (dom, entity) => {
         return (
           <a
             onClick={() => {
               setCurrentRow(entity);
+              GetCategory(entity.id);
               setShowDetail(true);
             }}
           >
@@ -54,16 +63,19 @@ const CategoryTable: React.FC = () => {
       },
     },
     {
+      hideInSearch:true,
       title: 'Description',
       dataIndex: 'description',
     },
     {
+      hideInSearch:true,
       title: 'Create by User',
       dataIndex: 'createBy',
       renderText: (text: string) => <a>{text}</a>,
     },
     {
-      title: 'Date',
+      hideInSearch:true,
+      title: 'Created At',
       dataIndex: 'createdAt',
       valueType: 'dateTime',
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
@@ -81,6 +93,7 @@ const CategoryTable: React.FC = () => {
       },
     },
     {
+      hideInSearch:true,
       title: 'Option',
       dataIndex: 'option',
       valueType: 'option',
@@ -111,6 +124,7 @@ const CategoryTable: React.FC = () => {
   ];
 
   const handleCreate = (values: InputForm) => {
+    setIsLoading(true);
     CreateCategoryProxy({
       name: values.name,
       description: values.description,
@@ -122,6 +136,7 @@ const CategoryTable: React.FC = () => {
             id: 'pages.create.fail',
             defaultMessage: res.message ?? 'create category fail',
           });
+          setIsLoading(false);
           message.error(defaultCategoryFailureMessage);
           return;
         }
@@ -131,6 +146,7 @@ const CategoryTable: React.FC = () => {
             id: 'pages.create.success',
             defaultMessage: 'Success!',
           });
+          setIsLoading(false);
           message.success(defaultCategorySuccessMessage);
           handleModalVisible(false);
           setCountHandle(countHanlde + 1);
@@ -141,12 +157,14 @@ const CategoryTable: React.FC = () => {
           id: 'pages.create.failure',
           defaultMessage: err.message ?? 'create category fail',
         });
+        setIsLoading(false);
         message.error(defaultCategoryFailureMessage);
       })
       .finally(() => { });
   };
 
   const updateCategory = (id: number, values: InputForm) => {
+    setIsLoading(true);
     UpdateCategoryProxy({
       id: id,
       name: values.name,
@@ -159,6 +177,7 @@ const CategoryTable: React.FC = () => {
             id: 'pages.update.fail',
             defaultMessage: res.message ?? 'Update Category fail',
           });
+          setIsLoading(false);
           message.error(defaultCategoryFailureMessage);
           return;
         }
@@ -168,6 +187,7 @@ const CategoryTable: React.FC = () => {
             id: 'pages.update.success',
             defaultMessage: 'Success!',
           });
+          setIsLoading(false);
           message.success(defaultCategorySuccessMessage);
           setCountHandle(countHanlde + 1);
           handleUpdateModalVisible(false);
@@ -180,12 +200,14 @@ const CategoryTable: React.FC = () => {
           id: 'pages.update.fail',
           defaultMessage: err.message ?? 'Update Category fail',
         });
+        setIsLoading(false);
         message.error(defaultCategoryFailureMessage);
       })
       .finally(() => { });
   };
 
   const GetCategory = (id: number) => {
+    setIsLoading(true);
     GetCategoryProxy({
       id: id
     })
@@ -196,6 +218,7 @@ const CategoryTable: React.FC = () => {
             id: 'pages.detail.fail',
             defaultMessage: res.message ?? 'get detail category fail',
           });
+          setIsLoading(false);
           message.error(defaultCategoryFailureMessage);
           return;
         }
@@ -205,6 +228,7 @@ const CategoryTable: React.FC = () => {
             id: 'pages.detail.success',
             defaultMessage: 'Success!',
           });
+          setIsLoading(false);
           setCurrentCategory(res?.data.itemCategory);
         }
       })
@@ -213,6 +237,7 @@ const CategoryTable: React.FC = () => {
           id: 'pages.detail.fail',
           defaultMessage: err.message ?? 'get detail category fail',
         });
+        setIsLoading(false);
         message.error(defaultCategoryFailureMessage);
       })
       .finally(() => { });
@@ -220,6 +245,7 @@ const CategoryTable: React.FC = () => {
 
 
   useEffect(() => {
+    setIsLoading(true);
     CategoryListProxy({ page: currentPage, limit: pageSize })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
@@ -227,6 +253,7 @@ const CategoryTable: React.FC = () => {
             id: 'pages.load.fails',
             defaultMessage: res.message ?? 'Load fail',
           });
+          setIsLoading(false);
           message.error(defaultCategoryFailureMessage);
           return;
         }
@@ -256,12 +283,14 @@ const CategoryTable: React.FC = () => {
             });
           }
         }
+        setIsLoading(false);
       })
       .catch((err) => {
         const defaultCategoryFailureMessage = intl.formatMessage({
           id: 'pages.load.failure',
           defaultMessage: err ?? 'Load category fail',
         });
+        setIsLoading(false);
         message.error(defaultCategoryFailureMessage);
       });
   }, [intl, countHanlde, currentPage, pageSize]);
@@ -270,12 +299,10 @@ const CategoryTable: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
+        search={false}
         headerTitle="Item Category Table"
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -308,12 +335,12 @@ const CategoryTable: React.FC = () => {
         handleModalVisible={handleModalVisible}
         onSubmit={handleCreate}
       />
-      {currentRow ? <UpdateForm
+      {currentRow && <UpdateForm
         modalVisible={updateModalVisible}
         handleModalVisible={handleUpdateModalVisible}
         onSubmit={updateCategory}
         currentItem={currentRow}
-      /> : <></>}
+      />}
       <Drawer
         width={600}
         visible={showDetail}

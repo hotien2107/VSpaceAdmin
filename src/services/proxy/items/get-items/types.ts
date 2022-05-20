@@ -17,11 +17,12 @@ export interface ItemListProxyResponseInterface {
   items: ItemInterface[];
   pagination: PaginationInterface
 }
-export interface ItemListProxyParamsInterface {
+export interface ItemListParamsInterface {
   page?: number;
   limit?: number;
   "name[contains]"?: string;
   "path[startsWith]"?: string;
-  category_id?: string;
+  "name[startsWith]"?: string;
+  category_id?:string;
   sort_by?:string;
 }

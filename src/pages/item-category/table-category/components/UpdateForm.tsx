@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import type { InputForm } from "../data";
 import { CategoryInterface } from '@/types/item';
+import {Form} from "antd"
 
 
 
@@ -14,9 +15,15 @@ type UpdateFormProps = {
 
 const UpdateForm: React.FC<UpdateFormProps> = (props) => {
   const { modalVisible, onSubmit, handleModalVisible, currentItem } = props;
+  const [form] = Form.useForm();
+
+  useEffect(()=>{
+    form.resetFields();
+  },[modalVisible])
 
   return (
     <ModalForm
+    form={form}
     title="Update Item Category"
     width="400px"
     visible={modalVisible}
@@ -26,6 +33,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         name: value.name,
         description: value.description,
       }
+      console.log(value);
       onSubmit(currentItem?.id, category);
       handleModalVisible(false);
     }}
@@ -41,7 +49,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       name="name"
       placeholder="Enter name..."
       initialValue={currentItem?.name}
-      label="Name Category"
+      label="Category Name"
     />
     <ProFormTextArea
       rules={[
@@ -58,7 +66,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       name="description"
       placeholder="Enter description..."
       initialValue={currentItem?.description}
-      label="Description Category"
+      label="Description"
     />
   </ModalForm>
   );

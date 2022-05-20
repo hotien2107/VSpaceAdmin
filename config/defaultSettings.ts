@@ -12,9 +12,9 @@ const Settings: LayoutSettings & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: 'Ant Design Pro',
+  title: 'Vispace Admin',
   pwa: false,
-  logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+  logo: 'http://res.cloudinary.com/dcm0ibm0b/image/upload/v1652723843/dew54xnglkgsiukhzbw6.svg',
   iconfontUrl: '',
 };
 

@@ -4,11 +4,10 @@ import UnblockUserProxy from '@/services/proxy/users/unblock';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
-import { ModalForm, ProFormText } from '@ant-design/pro-form';
-import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Drawer, Input, message, Modal } from 'antd';
+import { Drawer, Input, message, Modal } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useIntl } from 'umi';
 import type { TableUsersItem, TableUsersPagination } from './data';
@@ -19,14 +18,10 @@ const TableUsers: React.FC = () => {
     total: 0,
     pageSize: 0,
     current: 1,
-    name:"",
-    email:"",
-    status:"",
+    name: "",
+    email: "",
   });
   const [currentPage, setCurrentPage] = useState<number>(1);
-  //  Cửa sổ bật lên mới
-  const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  //  Cửa sổ cập nhật phân phối bật lên
 
   const [countGetUserList, setCountGetUserList] = useState<number>(0);
 
@@ -35,10 +30,9 @@ const TableUsers: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableUsersItem>();
-  const [selectedRowsState, setSelectedRows] = useState<TableUsersItem[]>([]);
   const [pageSize, setPageSize] = useState<number>(10);
   const [name, setName] = useState<string>("");
-  const [email, setEmail] =useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [sorter, setSorter] = useState<string>("");
 
@@ -46,28 +40,28 @@ const TableUsers: React.FC = () => {
   const intl = useIntl();
 
   useEffect(() => {
-    let tmp:Object={ 
-      page: currentPage, 
+    let tmp: Object = {
+      page: currentPage,
       limit: pageSize,
-      "name[startsWith]": name, 
-      "email[contains]":email,
-      sort_by:sorter,
+      "name[startsWith]": name,
+      "email[contains]": email,
+      sort_by: sorter,
     };
 
-    if (status!==""){
-      tmp={ 
-        page: currentPage, 
+    if (status !== "") {
+      tmp = {
+        page: currentPage,
         limit: pageSize,
-        "name[startsWith]": name, 
-        "email[contains]":email,
+        "name[startsWith]": name,
+        "email[contains]": email,
         status: status,
-        sort_by:sorter
+        sort_by: sorter
       };
     }
     UserListProxy(tmp)
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          message.error('Lỗi không lấy được danh sách người dùng');
+          message.error('Do not load user list');
           return;
         }
 
@@ -79,17 +73,16 @@ const TableUsers: React.FC = () => {
               total: res?.data?.pagination?.totalCount ?? 0,
               pageSize: res?.data?.pagination?.count ?? 0,
               current: res?.data?.pagination?.page ?? 1,
-              email:"",
-              name:"",
-              status:""
+              email: "",
+              name: "",
             });
           }
         }
       })
       .catch((err) => {
-        message.error('Lỗi không lấy được danh sách người dùng', err);
+        message.error('Do not load user list', err);
       });
-  }, [intl, countGetUserList, currentPage, pageSize,name,email,sorter,status]);
+  }, [intl, countGetUserList, currentPage, pageSize, name, email, sorter, status]);
 
   const handleBlockUser = (id: number) => {
     BlockUserProxy(id).then((res) => {
@@ -121,7 +114,12 @@ const TableUsers: React.FC = () => {
 
   const columns: ProColumns<TableUsersItem>[] = [
     {
-      title: 'Tên người dùng',
+      dataIndex: 'index',
+      valueType: 'indexBorder',
+      width: 48,
+    },
+    {
+      title: 'Name',
       dataIndex: 'name',
       sorter: {
         multiple: 1,
@@ -140,39 +138,54 @@ const TableUsers: React.FC = () => {
       },
     },
     {
-      title: 'email',
+      title: 'Email',
       dataIndex: 'email',
       renderText: (val: string) => `${val}`,
     },
     {
-      title: 'Số điện thoại',
+      hideInSearch: true,
+      title: 'Phone Number',
       dataIndex: 'phone',
-      hideInForm: true,
       renderText: (val: string) => {
-        return val ? `${val}` : 'Không có';
+        return val ? `${val}` : 'None';
       },
     },
     {
-      title: 'Trạng thái',
+      hideInSearch: true,
+      title: 'Status',
       dataIndex: 'status',
-      hideInForm: true,
+      filters: [
+        {
+          text: 'Active',
+          value: 'active',
+        },
+        {
+          text: 'Inactive',
+          value: 'inactive',
+        },
+        {
+          text: 'Blocked',
+          value: 'blocked',
+        },
+      ],
       valueEnum: {
         0: {
-          text: 'Đã kích hoạt',
+          text: 'Active',
           status: 'active',
         },
         1: {
-          text: 'Chưa kích hoạt',
+          text: 'Inactive',
           status: 'inactive',
         },
         2: {
-          text: 'Chặn',
+          text: 'Blocked',
           status: 'blocked',
         },
       },
     },
     {
-      title: 'Thời gian giam gia',
+      hideInSearch: true,
+      title: 'Create At',
       dataIndex: 'createdAt',
       valueType: 'dateTime',
       sorter: {
@@ -193,12 +206,14 @@ const TableUsers: React.FC = () => {
       },
     },
     {
-      title: 'Loại đăng nhập',
+      hideInSearch: true,
+      title: 'Provider',
       dataIndex: 'provider',
       renderText: (val: string) => `${val}`,
     },
     {
-      title: 'Tuỳ chọn',
+      hideInSearch: true,
+      title: 'Option',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => {
@@ -230,50 +245,68 @@ const TableUsers: React.FC = () => {
     },
   ];
 
+  const handleFilter = (filter: any) => {
+    let statusFilter: string = "";
+    filter?.status?.map((item: any) => {
+      statusFilter += item.toString() + ',';
+    })
+    if (statusFilter.length > 1) {
+      statusFilter = statusFilter.substring(0, statusFilter.length - 1)
+    }
+    setStatus(statusFilter);
+  }
+
+  const customField = (key: string) => {
+    let tmp: string="";
+    switch (key) {
+      case "createdAt":
+        tmp = "created_at";
+        break;
+      default:
+        tmp=key;
+        break;
+    }
+    return tmp;
+  }
+
+  const handleSorter = (sorter: any) => {
+    let key: any;
+    let sorterTmp: string = "";
+    for (key in sorter) {
+      let element: string = sorter[key] == "ascend" ? customField(key) : "-" + customField(key);
+      sorterTmp += element + ","
+    }
+    if (sorterTmp.length > 0) {
+      sorterTmp = sorterTmp.substring(0, sorterTmp.length - 1)
+    }
+    setSorter(sorterTmp);
+  }
+
   return (
     <PageContainer>
       <ProTable<TableUsersItem, TableUsersPagination>
-        headerTitle="Danh sách người dùng"
+        headerTitle="User List"
+        cardBordered
         actionRef={actionRef}
         rowKey="id"
         search={{
           labelWidth: 120,
         }}
-        request={(params, sorter) => {
+        request={(params, sorter, filter) => {
+          console.log(sorter);
           setName(params?.name);
           setEmail(params?.email);
-          let statusSearch:string="";
-          switch (params?.status){
-            case "0":
-              statusSearch="inactive";
-              break;
-            case "1":
-              statusSearch="active";
-              break;
-            case "2":
-              statusSearch="blocked";
-              break;
-            default:
-              statusSearch="";
-          }
-          setStatus(statusSearch);
-          let nameSorter:string="";
-          nameSorter= sorter.name && sorter.name ==="ascend"?"name":"-name";
-          let createAtSorter:string="";
-          createAtSorter= sorter.createAt && sorter.createAt ==="ascend"?"create_at":"-create_at";
-          setSorter(nameSorter+","+createAtSorter);
+
+          handleFilter(filter);
+
+          handleSorter(sorter);
+
           return Promise.resolve({
             success: true,
           });
         }}
         dataSource={userList}
         columns={columns}
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-            console.log(selectedRows);
-          },
-        }}
         pagination={{
           pageSize: pageSize,
           total: userPagination.total,
@@ -289,56 +322,8 @@ const TableUsers: React.FC = () => {
           },
         }}
       />
-      {selectedRowsState?.length > 0 && (
-        <FooterToolbar
-          extra={
-            <div>
-              Đã chọn{' '}
-              <a
-                style={{
-                  fontWeight: 600,
-                }}
-              >
-                {selectedRowsState.length}
-              </a>{' '}
-              Mục &nbsp;&nbsp;
-            </div>
-          }
-        >
-          <Button
-            onClick={async () => {
-              setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
-            }}
-          >
-            Xóa hàng loạt
-          </Button>
-          <Button type="primary">Phê duyệt hàng loạt</Button>
-        </FooterToolbar>
-      )}
-      <ModalForm
-        title="Người dùng mới"
-        width="400px"
-        visible={createModalVisible}
-        onVisibleChange={handleModalVisible}
-        onFinish={async (value) => {
-          console.log(value);
-        }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: 'Tên người dùng là bắt buộc',
-            },
-          ]}
-          width="md"
-          name="name"
-        />
-      </ModalForm>
-
       <Modal
-        title="Basic Modal"
+        title="Block user"
         visible={blockModalVisible}
         onOk={() => {
           handleBlockModalVisible(false);
@@ -350,11 +335,11 @@ const TableUsers: React.FC = () => {
           handleBlockModalVisible(false);
         }}
       >
-        <p>Bạn có muốn block người dùng này không?</p>
+        <p>Do you want to block this user?</p>
       </Modal>
 
       <Modal
-        title="Basic Modal"
+        title="Unblock user"
         visible={unblockModalVisible}
         onOk={() => {
           handleUnblockModalVisible(false);
@@ -366,7 +351,7 @@ const TableUsers: React.FC = () => {
           handleUnblockModalVisible(false);
         }}
       >
-        <p>Bạn có muốn unblock người dùng này không?</p>
+        <p>Do you want to unblock this user?</p>
       </Modal>
 
       <Drawer

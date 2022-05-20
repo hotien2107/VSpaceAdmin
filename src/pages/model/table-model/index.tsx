@@ -27,7 +27,7 @@ const TableList: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [filter, setFilter] = useState<FilterInterface[]>([]);
+  const [filters, setFilter] = useState<FilterInterface[]>([]);
   const [pagination, setPagination] = useState<TableListPagination>({
     total: 0,
     pageSize: 0,
@@ -39,6 +39,7 @@ const TableList: React.FC = () => {
 
   const [name, setName] = useState<string>("");
   const [path, setPath] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<string>("");
   const [sorter, setSorter] = useState<string>("");
 
 
@@ -148,8 +149,70 @@ const TableList: React.FC = () => {
       .finally(() => { });
   };
 
+  const handleFilter = (filter: any) => {
+    let cateFilter:string="";
+    filter?.category?.map((item:any)=>{
+      cateFilter+=item.toString()+',';
+    })
+    if ( cateFilter.length>1){
+      cateFilter=cateFilter.substring(0,cateFilter.length-1)
+    }
+    setCategoryId(cateFilter);
+  }
+
+  const customField = (key: string) => {
+    let tmp: string="";
+    switch (key) {
+      case "createdAt":
+        tmp = "created_at";
+        break;
+      case "updatedAt":
+        tmp = "updated_at";
+        break;
+        case "category":
+          tmp = "category_name";
+          break;
+      default:
+        tmp=key;
+        break;
+    }
+    return tmp;
+  }
+
+  const handleSorter = (sorter: any) => {
+    let key: any;
+    let sorterTmp: string = "";
+    for (key in sorter) {
+      let element: string = sorter[key] == "ascend" ? customField(key) : "-" + customField(key);
+      sorterTmp += element + ","
+    }
+    if (sorterTmp.length > 0) {
+      sorterTmp = sorterTmp.substring(0, sorterTmp.length - 1)
+    }
+    setSorter(sorterTmp);
+  }
+
   useEffect(() => {
-    ItemListProxy({ page: currentPage, limit: pageSize, "name[contains]": name, "path[startsWith]": path, sort_by: sorter })
+    let tmp:Object={ 
+      page: currentPage, 
+      limit: pageSize,
+      "name[contains]": name, 
+      "path[startsWith]": path,
+      sort_by:sorter,
+    };
+
+    if (categoryId!==""){
+      tmp={ 
+        page: currentPage, 
+        limit: pageSize,
+        "name[contains]": name, 
+        "path[startsWith]": path,
+        category_id:categoryId,
+        sort_by:sorter
+      };
+    }
+    console.log(tmp);
+    ItemListProxy(tmp)
       .then((res) => {
         console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
@@ -162,6 +225,7 @@ const TableList: React.FC = () => {
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
+          console.log(res?.data?.items);
           setItemList(res.data?.items ?? []);
           if (res?.data?.pagination) {
             setPagination({
@@ -204,7 +268,7 @@ const TableList: React.FC = () => {
       .catch((err) => {
         message.error("Don't load category list");
       });
-  }, [intl, countGetItemList, currentPage, pageSize, name, path, sorter]);
+  }, [intl, countGetItemList, currentPage, pageSize, name, path, sorter, categoryId]);
 
 
   const columns: ProColumns<TableListItem>[] = [
@@ -233,21 +297,27 @@ const TableList: React.FC = () => {
       renderText: (text: string) => <a href={text}>{text}</a>,
     },
     {
+      hideInSearch:true,
       title: 'Image',
       dataIndex: 'image',
       renderText: (text: string) => <img src={text} alt="model" width={40} height={40} />,
     },
     {
+      hideInSearch:true,
       title: 'Category',
       dataIndex: 'category',
-      filters: filter,
-      onFilter: true,
+      filters: filters,
+      sorter: {
+        multiple: 2,
+      },
+      // onFilter: true,
       renderText: (text: CategoryInterface) => <p>{text.name}</p>,
     },
     {
-      title: 'Date',
+      hideInSearch:true,
+      title: 'Create At',
       sorter: {
-        multiple: 2,
+        multiple: 3,
       },
       dataIndex: 'createdAt',
       valueType: 'dateTime',
@@ -266,6 +336,7 @@ const TableList: React.FC = () => {
       },
     },
     {
+      hideInSearch:true,
       title: 'Option',
       dataIndex: 'option',
       valueType: 'option',
@@ -302,14 +373,11 @@ const TableList: React.FC = () => {
           labelWidth: 80,
         }}
         request={(params, sorter, filter) => {
-          console.log(filter);
+          console.log(sorter);
           setName(params?.name);
           setPath(params?.modelPath);
-          let nameSorter: string = "";
-          nameSorter = sorter.name && sorter.name === "ascend" ? "name" : "-name";
-          let createAtSorter: string = "";
-          createAtSorter = sorter.createAt && sorter.createAt === "ascend" ? "create_at" : "-create_at";
-          setSorter(nameSorter + "," + createAtSorter);
+          handleFilter(filter);
+          handleSorter(sorter);
           return Promise.resolve({
             success: true,
           });
