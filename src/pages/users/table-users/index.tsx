@@ -293,7 +293,6 @@ const TableUsers: React.FC = () => {
           labelWidth: 120,
         }}
         request={(params, sorter, filter) => {
-          console.log(sorter);
           setName(params?.name);
           setEmail(params?.email);
 
@@ -314,7 +313,6 @@ const TableUsers: React.FC = () => {
           showSizeChanger: true,
           pageSizeOptions: ["5", "10", "20", "50", "100"],
           onShowSizeChange: (page, pageSize) => {
-            console.log(pageSize);
             setPageSize(pageSize);
           },
           onChange: (page) => {

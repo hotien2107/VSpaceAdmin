@@ -24,13 +24,11 @@ const Login: React.FC = () => {
 
   const handleSubmit = (values: LoginFormValues) => {
     setIsLoading(true);
-    console.log(values);
     LoginProxy({
       email: values.email,
       password: values.password,
     })
       .then((res) => {
-        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultLoginFailureMessage = intl.formatMessage({
             id: 'pages.login.failure',

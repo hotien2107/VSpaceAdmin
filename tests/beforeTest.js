@@ -10,7 +10,6 @@ const installPuppeteer = () => {
   const packages = detectInstaller(join(__dirname, '../'));
   // get installed package manager
   const packageName = packages.find(detectInstaller.hasPackageCommand) || 'npm';
-  console.log(`🤖 will use ${packageName} install puppeteer`);
   const command = `${packageName} ${packageName.includes('yarn') ? 'add' : 'i'} puppeteer`;
   execSync(command, {
     stdio: 'inherit',
@@ -22,10 +21,8 @@ const initPuppeteer = async () => {
     // eslint-disable-next-line import/no-unresolved
     const findChromePath = await findChrome({});
     const { executablePath } = findChromePath;
-    console.log(`🧲 find you browser in ${executablePath}`);
     return;
   } catch (error) {
-    console.log('🧲 no find chrome');
   }
 
   try {

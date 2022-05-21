@@ -15,7 +15,6 @@ const CodePreview: React.FC = ({ children }) => (
 
 export default (): React.ReactNode => {
   const { isAuthenticated } = useSelector((state: any) => state.auth);
-  console.log(isAuthenticated);
   const intl = useIntl();
   return (
     <PageContainer>

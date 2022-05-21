@@ -1,7 +1,7 @@
 import HttpClient from "../../../../helpers/axios";
 
 import { OfficeParamsInterface, OfficeApiResponseInterface } from "./types";
-const URL = "/offices";
+const URL = "admin/offices";
 
 export async function createOffice(params: OfficeParamsInterface) {
   const response = await HttpClient.post<OfficeApiResponseInterface>(

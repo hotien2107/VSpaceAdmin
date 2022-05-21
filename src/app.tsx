@@ -36,7 +36,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     disableContentMargin: false,
     footerRender: () => <Footer />,
     onPageChange: () => {
-      console.log(!initialState?.isAuthenticated)
       if (!initialState?.isAuthenticated) {
         history.push(loginPath);
       }

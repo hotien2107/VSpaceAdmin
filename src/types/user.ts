@@ -8,5 +8,4 @@ export interface UserInterface {
   externalId?: string;
   status: "active" | "inactive" | "blocked";
   createdAt: string;
-  updatedAt:string;
 }

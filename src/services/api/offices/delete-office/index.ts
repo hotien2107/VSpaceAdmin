@@ -2,7 +2,7 @@ import HttpClient from "../../../../helpers/axios";
 import { OfficeParamsInterface, OfficeApiResponseInterface } from "./types";
 
 
-const URL = "/offices";
+const URL = "admin/offices";
 
 export async function deleteOffice(params: OfficeParamsInterface) {
   const response = await HttpClient.delete<OfficeApiResponseInterface>(

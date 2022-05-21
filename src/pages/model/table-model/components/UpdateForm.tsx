@@ -40,7 +40,6 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             }
             list.push(tmp);
           })
-          console.log(list);
           setCategoryList(list);
         }
       })
@@ -119,13 +118,11 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
                   message.success('Upload model success!');
                   return;
                 } else {
-                  console.log('error', res);
                   message.error('Upload model failed!');
                   return;
                 }
               });
           } catch (err) {
-            console.log('Eroor: ', err);
           }
         }}
       >
@@ -152,20 +149,16 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             axios
               .post('https://api.vispace.tech/api/v1/uploads/image', fmData, config)
               .then((res) => {
-                console.log(res);
                 if (res?.data?.code && res?.data?.code === 200) {
-                  console.log(res?.data?.data?.url);
                   setIsImage(res?.data?.data?.url ?? isImage);
                   message.success('Upload image success!');
                   return;
                 } else {
-                  console.log('error', res);
                   message.error('Upload image failed!');
                   return;
                 }
               });
           } catch (err) {
-            console.log('Eroor: ', err);
           }
         }}
         accept=".png,.jpg,.jpeg"

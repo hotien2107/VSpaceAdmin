@@ -1,7 +1,7 @@
 import HttpClient from '../../../../helpers/axios';
 import type { BlockApiResponseInterface } from './types';
 
-const URL = '/offices/:id/block';
+const URL = 'admin/offices/:id/block';
 
 export async function blockOffice(id: number) {
   const response = await HttpClient.patch<BlockApiResponseInterface>(

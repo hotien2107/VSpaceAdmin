@@ -1,5 +1,5 @@
 export default {
-  'component.tagSelect.expand': 'Expand',
-  'component.tagSelect.collapse': 'Collapse',
-  'component.tagSelect.all': 'All',
+  'component.tagSelect.expand': 'Mở rộng',
+  'component.tagSelect.collapse': 'Thả xuống',
+  'component.tagSelect.all': 'Tất cả',
 };

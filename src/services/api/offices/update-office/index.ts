@@ -4,7 +4,7 @@ import {
   UpdateOfficeParamsInterface,
 } from "./types";
 
-const URL = "/offices";
+const URL = "admin/offices";
 
 export async function updateOffice(params: UpdateOfficeParamsInterface) {
   const response = await HttpClient.patch<UpdateOfficeApiResponseInterface>(

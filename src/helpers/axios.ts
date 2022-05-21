@@ -45,7 +45,7 @@ HttpClient.interceptors.request.use(
 HttpClient.interceptors.response.use(async (response) => {
   if (response.data.code === 401) {
       console.log("code");
-      const refreshTokenResponse = await axios.post(`${process.env.REACT_APP_BASE_URL}/auth/refreshToken`, null, {
+      const refreshTokenResponse = await axios.post(`${REACT_APP_BASE_URL}/auth/refreshToken`, null, {
           headers: { "x-refresh-token": `${getDataLocal("refresh_token")}` }
       });
 

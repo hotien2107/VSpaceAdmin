@@ -17,7 +17,6 @@ const getBrowser = async () => {
     });
     return browser;
   } catch (error) {
-    // console.log(error)
   }
 
   try {
@@ -37,7 +36,6 @@ const getBrowser = async () => {
     });
     return browser;
   } catch (error) {
-    console.log('🧲 no find chrome');
   }
   throw new Error('no find puppeteer');
 };

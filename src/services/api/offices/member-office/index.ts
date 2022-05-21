@@ -1,7 +1,7 @@
 import HttpClient from "../../../../helpers/axios";
 
 import { OfficeParamsInterface, OfficeApiResponseInterface } from "./types";
-const URL1 = "/offices";
+const URL1 = "admin/offices";
 const URL2 = "members";
 
 

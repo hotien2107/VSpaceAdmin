@@ -111,9 +111,8 @@ const CategoryTable: React.FC = () => {
         <a
           key="uppdate"
           onClick={() => {
-            console.log(record);
             setCurrentRow(record);
-            console.log(currentRow);
+            (currentRow);
             handleUpdateModalVisible(true);
           }}
         >
@@ -130,7 +129,7 @@ const CategoryTable: React.FC = () => {
       description: values.description,
     })
       .then((res) => {
-        console.log(res)
+        (res)
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultCategoryFailureMessage = intl.formatMessage({
             id: 'pages.create.fail',
@@ -171,7 +170,7 @@ const CategoryTable: React.FC = () => {
       description: values.description,
     })
       .then((res) => {
-        console.log(res)
+        (res)
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultCategoryFailureMessage = intl.formatMessage({
             id: 'pages.update.fail',
@@ -212,7 +211,7 @@ const CategoryTable: React.FC = () => {
       id: id
     })
       .then((res) => {
-        console.log(res);
+        (res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultCategoryFailureMessage = intl.formatMessage({
             id: 'pages.detail.fail',

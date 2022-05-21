@@ -79,9 +79,7 @@ const handleRemove = async (selectedRows: TableListItem[]) => {
 };
 
 const TableList: React.FC = () => {
-  //  Cửa sổ bật lên mới
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  //  Cửa sổ cập nhật phân phối bật lên
 
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
@@ -90,9 +88,6 @@ const TableList: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const [isModel, setIsModel] = useState<string>('');
 
-  console.log(isModel);
-
-  /** 国际化配置 */
 
   const columns: ProColumns<TableListItem>[] = [
     {
@@ -227,7 +222,6 @@ const TableList: React.FC = () => {
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          console.log(value);
           const success = await handleAdd(value as TableListItem);
           if (success) {
             handleModalVisible(false);

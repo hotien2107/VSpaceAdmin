@@ -46,7 +46,6 @@ const TableList: React.FC = () => {
   const intl = useIntl();
 
   const handleCreate = (value:InputForm) => {
-    console.log(value);
     CreateItemProxy({
       name: value.name,
       modelPath: value.modelPath,
@@ -54,7 +53,6 @@ const TableList: React.FC = () => {
       categoryId: value.categoryId,
     })
       .then((res) => {
-        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           message.error('Create item fail');
           return;
@@ -77,7 +75,6 @@ const TableList: React.FC = () => {
       id: id,
     })
       .then((res) => {
-        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultItemFailureMessage = intl.formatMessage({
             id: 'pages.delete.fail',
@@ -107,8 +104,7 @@ const TableList: React.FC = () => {
   };
 
   const updateItem = (values: InputForm, id: number) => {
-    console.log(id);
-    console.log(values);
+
     UpdateItemProxy({
       id: id,
       name: values.name,
@@ -117,7 +113,6 @@ const TableList: React.FC = () => {
       categoryId: values.categoryId,
     })
       .then((res) => {
-        console.log(res)
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultCategoryFailureMessage = intl.formatMessage({
             id: 'pages.update.fail',
@@ -211,10 +206,8 @@ const TableList: React.FC = () => {
         sort_by:sorter
       };
     }
-    console.log(tmp);
     ItemListProxy(tmp)
       .then((res) => {
-        console.log(res);
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultItemFailureMessage = intl.formatMessage({
             id: 'pages.load.fail',
@@ -225,7 +218,6 @@ const TableList: React.FC = () => {
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          console.log(res?.data?.items);
           setItemList(res.data?.items ?? []);
           if (res?.data?.pagination) {
             setPagination({
@@ -373,7 +365,6 @@ const TableList: React.FC = () => {
           labelWidth: 80,
         }}
         request={(params, sorter, filter) => {
-          console.log(sorter);
           setName(params?.name);
           setPath(params?.modelPath);
           handleFilter(filter);
@@ -407,7 +398,6 @@ const TableList: React.FC = () => {
           showSizeChanger: true,
           pageSizeOptions: ["5", "10", "20", "50", "100"],
           onShowSizeChange: (page, pageSize) => {
-            console.log(pageSize);
             setPageSize(pageSize);
           },
           onChange: (page) => {

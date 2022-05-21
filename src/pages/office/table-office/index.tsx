@@ -178,7 +178,6 @@ const OfficeTable: React.FC = () => {
        <a
        key="unblock"
        onClick={() => {
-         console.log("huhu");
          handleUnblockModalVisible(true);
         //  setCurrentRow(record);
        }}

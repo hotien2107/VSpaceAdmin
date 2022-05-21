@@ -39,7 +39,6 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
             }
             list.push(tmp);
           })
-          console.log(list);
           setCategoryList(list);
         }
       })
@@ -48,7 +47,6 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
       });
   }, [])
 
-  console.log(categoryList);
   return (
     <ModalForm
       title="Create model"
@@ -56,7 +54,6 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
       visible={modalVisible}
       onVisibleChange={handleModalVisible}
       onFinish={async (value) => {
-        console.log(value);
         onSubmit({
           name: value.name,
           categoryId: value.category,
@@ -115,13 +112,11 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
                   message.success('Upload model success!');
                   return;
                 } else {
-                  console.log('error', res);
                   message.error('Upload model failed!');
                   return;
                 }
               });
           } catch (err) {
-            console.log('Eroor: ', err);
           }
         }}
       >
@@ -148,20 +143,16 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
             axios
               .post('https://api.vispace.tech/api/v1/uploads/image', fmData, config)
               .then((res) => {
-                console.log(res);
                 if (res?.data?.code && res?.data?.code === 200) {
-                  console.log(res?.data?.data?.url);
                   setIsImage(res?.data?.data?.url ?? isImage);
                   message.success('Upload image success!');
                   return;
                 } else {
-                  console.log('error', res);
                   message.error('Upload image failed!');
                   return;
                 }
               });
           } catch (err) {
-            console.log('Eroor: ', err);
           }
         }}
         accept=".png,.jpg,.jpeg"
