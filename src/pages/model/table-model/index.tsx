@@ -10,7 +10,7 @@ import ProDescriptions from '@ant-design/pro-descriptions';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Drawer, Input, message } from 'antd';
+import { Button, Drawer, Input, message, Modal } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useIntl } from 'umi';
 import type { TableListItem, TableListPagination, InputForm, FilterInterface } from './data.d';
@@ -36,7 +36,7 @@ const TableList: React.FC = () => {
     modelPath: "",
   });
   const [currentPage, setCurrentPage] = useState<number>(1);
-
+  const [deleteModalVisible, handleDeleteModalVisible] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [path, setPath] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
@@ -45,7 +45,7 @@ const TableList: React.FC = () => {
 
   const intl = useIntl();
 
-  const handleCreate = (value:InputForm) => {
+  const handleCreate = (value: InputForm) => {
     CreateItemProxy({
       name: value.name,
       modelPath: value.modelPath,
@@ -145,18 +145,18 @@ const TableList: React.FC = () => {
   };
 
   const handleFilter = (filter: any) => {
-    let cateFilter:string="";
-    filter?.category?.map((item:any)=>{
-      cateFilter+=item.toString()+',';
+    let cateFilter: string = "";
+    filter?.category?.map((item: any) => {
+      cateFilter += item.toString() + ',';
     })
-    if ( cateFilter.length>1){
-      cateFilter=cateFilter.substring(0,cateFilter.length-1)
+    if (cateFilter.length > 1) {
+      cateFilter = cateFilter.substring(0, cateFilter.length - 1)
     }
     setCategoryId(cateFilter);
   }
 
   const customField = (key: string) => {
-    let tmp: string="";
+    let tmp: string = "";
     switch (key) {
       case "createdAt":
         tmp = "created_at";
@@ -164,11 +164,11 @@ const TableList: React.FC = () => {
       case "updatedAt":
         tmp = "updated_at";
         break;
-        case "category":
-          tmp = "category_name";
-          break;
+      case "category":
+        tmp = "category_name";
+        break;
       default:
-        tmp=key;
+        tmp = key;
         break;
     }
     return tmp;
@@ -188,22 +188,22 @@ const TableList: React.FC = () => {
   }
 
   useEffect(() => {
-    let tmp:Object={ 
-      page: currentPage, 
+    let tmp: Object = {
+      page: currentPage,
       limit: pageSize,
-      "name[contains]": name, 
+      "name[contains]": name,
       "path[startsWith]": path,
-      sort_by:sorter,
+      sort_by: sorter,
     };
 
-    if (categoryId!==""){
-      tmp={ 
-        page: currentPage, 
+    if (categoryId !== "") {
+      tmp = {
+        page: currentPage,
         limit: pageSize,
-        "name[contains]": name, 
+        "name[contains]": name,
         "path[startsWith]": path,
-        category_id:categoryId,
-        sort_by:sorter
+        category_id: categoryId,
+        sort_by: sorter
       };
     }
     ItemListProxy(tmp)
@@ -238,13 +238,13 @@ const TableList: React.FC = () => {
         message.error(defaultItemFailureMessage);
       });
 
-      CategoryListProxy({})
+    CategoryListProxy({})
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
           message.error("Don't load category list");
           return;
         }
-  
+
         if (res.status === ProxyStatusEnum.SUCCESS) {
           let list: Array<FilterInterface> = [];
           res?.data?.itemCategories.map((item) => {
@@ -264,6 +264,11 @@ const TableList: React.FC = () => {
 
 
   const columns: ProColumns<TableListItem>[] = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      hideInSearch: true,
+    },
     {
       title: 'Name',
       dataIndex: 'name',
@@ -289,13 +294,13 @@ const TableList: React.FC = () => {
       renderText: (text: string) => <a href={text}>{text}</a>,
     },
     {
-      hideInSearch:true,
+      hideInSearch: true,
       title: 'Image',
       dataIndex: 'image',
       renderText: (text: string) => <img src={text} alt="model" width={40} height={40} />,
     },
     {
-      hideInSearch:true,
+      hideInSearch: true,
       title: 'Category',
       dataIndex: 'category',
       filters: filters,
@@ -306,7 +311,7 @@ const TableList: React.FC = () => {
       renderText: (text: CategoryInterface) => <p>{text.name}</p>,
     },
     {
-      hideInSearch:true,
+      hideInSearch: true,
       title: 'Create At',
       sorter: {
         multiple: 3,
@@ -328,7 +333,7 @@ const TableList: React.FC = () => {
       },
     },
     {
-      hideInSearch:true,
+      hideInSearch: true,
       title: 'Option',
       dataIndex: 'option',
       valueType: 'option',
@@ -350,6 +355,16 @@ const TableList: React.FC = () => {
           }}
         >
           Update
+        </a>,
+        <a
+          key="uppdate"
+          onClick={() => {
+            setCurrentRow(record);
+            (currentRow);
+            handleDeleteModalVisible(true);
+          }}
+        >
+          Delete
         </a>,
       ],
     },
@@ -427,17 +442,32 @@ const TableList: React.FC = () => {
           <Button type="primary">No</Button>
         </FooterToolbar>
       )}
+      <Modal
+        title="Delete Category"
+        visible={deleteModalVisible}
+        onOk={() => {
+          handleDeleteModalVisible(false);
+          if (currentRow) {
+            deleteItem(currentRow?.id)
+          }
+        }}
+        onCancel={() => {
+          handleDeleteModalVisible(false);
+        }}
+      >
+        <p>Do you want to delete this office?</p>
+      </Modal>
       <CreateForm
-      modalVisible={createModalVisible}
-      handleModalVisible={handleModalVisible}
-      onSubmit={handleCreate}
+        modalVisible={createModalVisible}
+        handleModalVisible={handleModalVisible}
+        onSubmit={handleCreate}
       />
-           {currentRow? <UpdateForm
-      modalVisible={updateModalVisible}
-      handleModalVisible={handleUpdateModalVisible}
-      onSubmit={updateItem}
-      currentItem={currentRow}
-      />:<></>}
+      {currentRow ? <UpdateForm
+        modalVisible={updateModalVisible}
+        handleModalVisible={handleUpdateModalVisible}
+        onSubmit={updateItem}
+        currentItem={currentRow}
+      /> : <></>}
       <Drawer
         width={600}
         visible={showDetail}

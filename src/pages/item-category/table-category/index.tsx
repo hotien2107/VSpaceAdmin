@@ -4,19 +4,20 @@ import React, { useState, useRef, useEffect } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { TableListItem, TableListPagination, InputForm } from './data';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
 import { useIntl } from "umi";
+import DeleteCategoryProxy from '@/services/proxy/item-categories/delete-item-category';
 import CreateCategoryProxy from '@/services/proxy/item-categories/create-item-category';
 import GetCategoryProxy from '@/services/proxy/item-categories/get-item-category';
 import CategoryListProxy from '@/services/proxy/item-categories/get-item-categories';
 import UpdateCategoryProxy from '@/services/proxy/item-categories/update-item-category';
-import { ItemCategoryInterface } from '@/types/item-category';
+import { CreatorInterface, ItemCategoryInterface } from '@/types/item-category';
 import CreateForm from './components/CreateForm';
 import UpdateForm from './components/UpdateForm';
-import { Spin } from 'antd';
+import { Modal } from 'antd';
+import { CategoryInterface } from '@/types/item';
 
 const CategoryTable: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -34,19 +35,20 @@ const CategoryTable: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [currentCategory, setCurrentCategory] = useState<ItemCategoryInterface>();
+  const [deleteModalVisible, handleDeleteModalVisible] = useState<boolean>(false);
   const [countHanlde, setCountHandle] = useState<number>(0);
 
   const intl = useIntl();
 
   const columns: ProColumns<TableListItem>[] = [
     {
-      dataIndex: 'index',
-      valueType: 'indexBorder',
-      width: 48,
+      title: 'ID',
+      dataIndex: 'id',
+      hideInSearch: true,
     },
     {
       title: 'Name',
-      hideInSearch:true,
+      hideInSearch: true,
       dataIndex: 'name',
       render: (dom, entity) => {
         return (
@@ -63,18 +65,19 @@ const CategoryTable: React.FC = () => {
       },
     },
     {
-      hideInSearch:true,
+      hideInSearch: true,
       title: 'Description',
       dataIndex: 'description',
+      renderText: (description: string) => <p>{description}</p>,
     },
     {
-      hideInSearch:true,
-      title: 'Create by User',
+      hideInSearch: true,
+      title: 'Create by',
       dataIndex: 'createBy',
-      renderText: (text: string) => <a>{text}</a>,
+      renderText: (creator: CreatorInterface) => <p>{creator?.name}</p>,
     },
     {
-      hideInSearch:true,
+      hideInSearch: true,
       title: 'Created At',
       dataIndex: 'createdAt',
       valueType: 'dateTime',
@@ -93,7 +96,7 @@ const CategoryTable: React.FC = () => {
       },
     },
     {
-      hideInSearch:true,
+      hideInSearch: true,
       title: 'Option',
       dataIndex: 'option',
       valueType: 'option',
@@ -117,6 +120,16 @@ const CategoryTable: React.FC = () => {
           }}
         >
           Update
+        </a>,
+        <a
+          key="uppdate"
+          onClick={() => {
+            setCurrentRow(record);
+            (currentRow);
+            handleDeleteModalVisible(true);
+          }}
+        >
+          Delete
         </a>,
       ],
     },
@@ -242,6 +255,39 @@ const CategoryTable: React.FC = () => {
       .finally(() => { });
   };
 
+  const deleteCategory = (id: number) => {
+    DeleteCategoryProxy({
+      id: id,
+    })
+      .then((res) => {
+        if (res.status === ProxyStatusEnum.FAIL) {
+          const defaultItemFailureMessage = intl.formatMessage({
+            id: 'pages.delete.fail',
+            defaultMessage: res.message ?? 'delete category fail',
+          });
+          message.error(defaultItemFailureMessage);
+          return;
+        }
+
+        if (res.status === ProxyStatusEnum.SUCCESS) {
+          const defaultItemSuccessMessage = intl.formatMessage({
+            id: 'pages.delete.success',
+            defaultMessage: 'Success!',
+          });
+          message.success(defaultItemSuccessMessage);
+          setCountHandle(countHanlde + 1);
+        }
+      })
+      .catch((err) => {
+        const defaultItemFailureMessage = intl.formatMessage({
+          id: 'pages.delete.failure',
+          defaultMessage: err.message ?? 'delete category fail',
+        });
+        message.error(defaultItemFailureMessage);
+      })
+      .finally(() => { });
+  };
+
 
   useEffect(() => {
     setIsLoading(true);
@@ -263,12 +309,13 @@ const CategoryTable: React.FC = () => {
             defaultMessage: 'Success!',
           });
           let list: Array<TableListItem> = [];
-          res?.data?.itemCategories.map((item) => {
+          res?.data?.itemCategories && res?.data?.itemCategories.map((item) => {
+            console.log(item)
             let tmp: TableListItem = {
               id: item.id,
               name: item.name,
               description: item.description,
-              createBy: item.creator.name,
+              createBy: item.creator,
               createdAt: item.createdAt,
             }
             list.push(tmp);
@@ -329,6 +376,21 @@ const CategoryTable: React.FC = () => {
           },
         }}
       />
+      <Modal
+        title="Delete Category"
+        visible={deleteModalVisible}
+        onOk={() => {
+          handleDeleteModalVisible(false);
+          if (currentRow) {
+            deleteCategory(currentRow?.id)
+          }
+        }}
+        onCancel={() => {
+          handleDeleteModalVisible(false);
+        }}
+      >
+        <p>Do you want to delete this office?</p>
+      </Modal>
       <CreateForm
         modalVisible={createModalVisible}
         handleModalVisible={handleModalVisible}
@@ -358,11 +420,14 @@ const CategoryTable: React.FC = () => {
                 data: currentCategory || {},
               })}
               params={{
-                id: currentCategory?.name,
+                id: currentCategory?.id,
               }}
-              columns={columns as ProDescriptionsItemProps<ItemCategoryInterface>[]}
             />
+            <p>Id: {currentCategory?.id}</p>
+            <p>Name: {currentCategory?.name}</p>
+            <p>Descriptions: {currentCategory?.description}</p>
             <p>Create By: {currentCategory.creator.name}</p>
+            <p>Create at: {currentCategory?.createdAt}</p>
           </>
         )}
       </Drawer>

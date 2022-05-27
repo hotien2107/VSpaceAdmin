@@ -3,6 +3,7 @@ import { defineConfig } from 'umi';
 import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
+import component from '@/locales/en-US/component';
 
 const { REACT_APP_ENV } = process.env;
 
@@ -31,28 +32,28 @@ export default defineConfig({
   // umi routes: https://umijs.org/docs/routing
   routes: [
     {
-        name: 'Users',
-        icon: 'user',
-        path: '/users/table-users',
-        component: './users/table-users',
-      },
+      name: 'Users',
+      icon: 'user',
+      path: '/users/table-users',
+      component: './users/table-users',
+    },
+    {
+      path: '/item-category',
+      icon: 'CheckCircleOutlined',
+      name: 'Item Category',
+      component: './item-category/table-category',
+    },
     {
       path: '/model',
-      icon: 'table',
+      icon: 'dashboard',
       name: 'Model',
       component: './model/table-model',
     },
     {
       path: '/office',
-      icon: 'table',
+      icon: 'Smile',
       name: 'Office',
       component: './office/table-office',
-    },
-    {
-      path: '/item-category',
-      icon: 'table',
-      name: 'Item Category',
-      component: './item-category/table-category',
     },
     {
       path: '/user',
@@ -202,27 +203,10 @@ export default defineConfig({
     //   ],
     // },
     // {
-    //   path: '/profile',
+    //   path: '/profile/basic',
     //   name: 'profile',
     //   icon: 'profile',
-    //   routes: [
-    //     {
-    //       path: '/profile',
-    //       redirect: '/profile/basic',
-    //     },
-    //     {
-    //       name: 'basic',
-    //       icon: 'smile',
-    //       path: '/profile/basic',
-    //       component: './profile/basic',
-    //     },
-    //     {
-    //       name: 'advanced',
-    //       icon: 'smile',
-    //       path: '/profile/advanced',
-    //       component: './profile/advanced',
-    //     },
-    //   ],
+    //   component:'./profile/basic'
     // },
     // {
     //   name: 'result',

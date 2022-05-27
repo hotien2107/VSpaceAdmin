@@ -114,9 +114,9 @@ const TableUsers: React.FC = () => {
 
   const columns: ProColumns<TableUsersItem>[] = [
     {
-      dataIndex: 'index',
-      valueType: 'indexBorder',
-      width: 48,
+      title: 'ID',
+      dataIndex: 'id',
+      hideInSearch:true,
     },
     {
       title: 'Name',

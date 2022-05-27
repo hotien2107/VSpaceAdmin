@@ -86,12 +86,12 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
   const menuHeaderDropdown = (
     <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-      {menu && (
+      {/* {menu && (
         <Menu.Item key="center">
           <UserOutlined />
           Profile
         </Menu.Item>
-      )}
+      )} */}
       {/* {menu && (
         <Menu.Item key="settings">
           <SettingOutlined />

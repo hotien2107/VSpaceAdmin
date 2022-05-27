@@ -1,8 +1,10 @@
+import { CreatorInterface } from "@/types/item-category";
+
 export type TableListItem = {
   id: number;
   name: string;
   description: string;
-  createBy:string;
+  createBy: CreatorInterface
   createdAt: string;
 };
 

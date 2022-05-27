@@ -30,7 +30,7 @@ const ProfileProxy = async (): Promise<
 > => {
   const res = await getProfile();
 
-  if (res?.code) {
+  if (res?.code && res?.code) {
     return {
       status: ProxyStatusEnum.FAIL,
       message: res.message,

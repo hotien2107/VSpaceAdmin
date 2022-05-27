@@ -1,7 +1,7 @@
 import type { UserInterface } from '../../../../types/user';
 
 export interface ProfileProxyTransformInterface {
-  id: string;
+  id: number;
   email: string;
   name: string;
   phone?: string;

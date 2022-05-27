@@ -37,9 +37,9 @@ const OfficeTable: React.FC = () => {
 
   const columns: ProColumns<TableListItem>[] = [
     {
-      dataIndex: 'index',
-      valueType: 'indexBorder',
-      width: 48,
+      title: 'ID',
+      dataIndex: 'id',
+      hideInSearch:true,
     },
     {
       title: 'Name',
@@ -53,6 +53,7 @@ const OfficeTable: React.FC = () => {
             onClick={() => {
               setCurrentRow(entity);
               setShowDetail(true);
+              GetOffice(entity.id)
             }}
           >
             {dom}
@@ -63,7 +64,7 @@ const OfficeTable: React.FC = () => {
     {
       title: 'Create by User',
       dataIndex: 'nameUser',
-      renderText: (text: string) => <a>{text}</a>,
+      renderText: (text: string) => <p>{text}</p>,
     },
     {
       hideInSearch:true,
@@ -138,7 +139,7 @@ const OfficeTable: React.FC = () => {
       title: 'Invitation Code',
       hideInSearch:true,
       dataIndex: 'invitationCode',
-      renderText: (text: string) => <a>{text}</a>,
+      renderText: (text: string) => <p>{text}</p>,
     },
     {
       title: 'Date',
@@ -165,26 +166,6 @@ const OfficeTable: React.FC = () => {
       dataIndex: 'option',
       hideInSearch:true,
       valueType: 'option',
-      render: (_, record) => [
-        <a
-        key="block"
-        onClick={() => {
-          handleBlockModalVisible(true);
-          // setCurrentRow(record);
-        }}
-      >
-        Block
-      </a>,
-       <a
-       key="unblock"
-       onClick={() => {
-         handleUnblockModalVisible(true);
-        //  setCurrentRow(record);
-       }}
-     >
-       Unblock
-     </a>,
-      ],
     },
   ];
 
