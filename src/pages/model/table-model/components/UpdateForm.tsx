@@ -77,10 +77,10 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         name="name"
         placeholder="Enter name..."
         label="Name model"
-        initialValue={currentItem.name}
+        initialValue={currentItem?.name}
       />
       <ProFormSelect
-        initialValue={currentItem.category.name}
+        initialValue={currentItem?.category?.name}
         options={categoryList}
         width="md"
         name="category"

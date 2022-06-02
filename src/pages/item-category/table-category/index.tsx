@@ -72,7 +72,7 @@ const CategoryTable: React.FC = () => {
     },
     {
       hideInSearch: true,
-      title: 'Create by',
+      title: 'Created by',
       dataIndex: 'createBy',
       renderText: (creator: CreatorInterface) => <p>{creator?.name}</p>,
     },
@@ -112,7 +112,7 @@ const CategoryTable: React.FC = () => {
           Detail
         </a>,
         <a
-          key="uppdate"
+          key="update"
           onClick={() => {
             setCurrentRow(record);
             (currentRow);
@@ -122,7 +122,7 @@ const CategoryTable: React.FC = () => {
           Update
         </a>,
         <a
-          key="uppdate"
+          key="delete"
           onClick={() => {
             setCurrentRow(record);
             (currentRow);

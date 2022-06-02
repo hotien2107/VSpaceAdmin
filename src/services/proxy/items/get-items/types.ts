@@ -17,6 +17,7 @@ export interface ItemListProxyResponseInterface {
   items: ItemInterface[];
   pagination: PaginationInterface
 }
+
 export interface ItemListParamsInterface {
   page?: number;
   limit?: number;

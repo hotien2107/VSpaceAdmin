@@ -208,6 +208,7 @@ const TableList: React.FC = () => {
     }
     ItemListProxy(tmp)
       .then((res) => {
+        console.log(res)
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultItemFailureMessage = intl.formatMessage({
             id: 'pages.load.fail',
@@ -240,6 +241,7 @@ const TableList: React.FC = () => {
 
     CategoryListProxy({})
       .then((res) => {
+        console.log(res)
         if (res.status === ProxyStatusEnum.FAIL) {
           message.error("Don't load category list");
           return;
@@ -308,11 +310,11 @@ const TableList: React.FC = () => {
         multiple: 2,
       },
       // onFilter: true,
-      renderText: (text: CategoryInterface) => <p>{text.name}</p>,
+      renderText: (category: CategoryInterface) => <p>{category?.name}</p>,
     },
     {
       hideInSearch: true,
-      title: 'Create At',
+      title: 'Created At',
       sorter: {
         multiple: 3,
       },
@@ -339,7 +341,7 @@ const TableList: React.FC = () => {
       valueType: 'option',
       render: (_, record) => [
         <a
-          key="view"
+          key="detail"
           onClick={() => {
             setShowDetail(true);
             setCurrentRow(record);
@@ -348,7 +350,7 @@ const TableList: React.FC = () => {
           Detail
         </a>,
         <a
-          key="config"
+          key="update"
           onClick={() => {
             setCurrentRow(record);
             handleUpdateModalVisible(true);
@@ -357,7 +359,7 @@ const TableList: React.FC = () => {
           Update
         </a>,
         <a
-          key="uppdate"
+          key="delete"
           onClick={() => {
             setCurrentRow(record);
             (currentRow);
@@ -439,7 +441,13 @@ const TableList: React.FC = () => {
           >
             Yes
           </Button>
-          <Button type="primary">No</Button>
+          <Button 
+          type="primary"
+          onClick={async () => {
+            setSelectedRows([]);
+            actionRef.current?.reloadAndRest?.();
+          }}
+          >No</Button>
         </FooterToolbar>
       )}
       <Modal

@@ -142,7 +142,7 @@ const OfficeTable: React.FC = () => {
       renderText: (text: string) => <p>{text}</p>,
     },
     {
-      title: 'Date',
+      title: 'Created At',
       hideInSearch:true,
       sorter: true,
       dataIndex: 'createdAt',

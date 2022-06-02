@@ -185,7 +185,7 @@ const TableUsers: React.FC = () => {
     },
     {
       hideInSearch: true,
-      title: 'Create At',
+      title: 'Created At',
       dataIndex: 'createdAt',
       valueType: 'dateTime',
       sorter: {

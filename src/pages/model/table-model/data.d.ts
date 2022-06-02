@@ -4,9 +4,9 @@ export type TableListItem = {
   id: number;
   name: string;
   modelPath: string;
-  image:string;
-  category: CategoryInterface;
   createdAt: string;
+  category:CategoryInterface;
+  image: string;
 };
 
 export type InputForm = {
