@@ -41,11 +41,12 @@ const TableList: React.FC = () => {
   const [path, setPath] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [sorter, setSorter] = useState<string>("");
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const intl = useIntl();
 
   const handleCreate = (value: InputForm) => {
+    setIsLoading(true);
     CreateItemProxy({
       name: value.name,
       modelPath: value.modelPath,
@@ -55,16 +56,19 @@ const TableList: React.FC = () => {
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
           message.error('Create item fail');
+          setIsLoading(false);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
           message.success('Create item success');
           handleModalVisible(false);
+          setIsLoading(false);
           setCountGetItemList(countGetItemList + 1);
         }
       })
       .catch((err) => {
+        setIsLoading(false);
         message.error('Create item fail', err);
       })
       .finally(() => { });
@@ -104,6 +108,7 @@ const TableList: React.FC = () => {
   };
 
   const updateItem = (values: InputForm, id: number) => {
+    setIsLoading(false);
 
     UpdateItemProxy({
       id: id,
@@ -118,6 +123,7 @@ const TableList: React.FC = () => {
             id: 'pages.update.fail',
             defaultMessage: res.message ?? 'Update Item fail',
           });
+          setIsLoading(false);
           message.error(defaultCategoryFailureMessage);
           return;
         }
@@ -127,6 +133,7 @@ const TableList: React.FC = () => {
             id: 'pages.update.success',
             defaultMessage: 'Success!',
           });
+          setIsLoading(false);
           message.success(defaultCategorySuccessMessage);
           setCountGetItemList(countGetItemList + 1);
           setCurrentRow(undefined);
@@ -139,6 +146,8 @@ const TableList: React.FC = () => {
           id: 'pages.update.fail',
           defaultMessage: err.message ?? 'Update Item fail',
         });
+        setIsLoading(false);
+
         message.error(defaultCategoryFailureMessage);
       })
       .finally(() => { });
@@ -206,6 +215,8 @@ const TableList: React.FC = () => {
         sort_by: sorter
       };
     }
+    setIsLoading(true);
+
     ItemListProxy(tmp)
       .then((res) => {
         console.log(res)
@@ -214,6 +225,8 @@ const TableList: React.FC = () => {
             id: 'pages.load.fail',
             defaultMessage: res.message ?? 'get items fail',
           });
+          setIsLoading(false);
+
           message.error(defaultItemFailureMessage);
           return;
         }
@@ -230,12 +243,16 @@ const TableList: React.FC = () => {
             });
           }
         }
+        setIsLoading(false);
+
       })
       .catch((err) => {
         const defaultItemFailureMessage = intl.formatMessage({
           id: 'pages.load.fail',
           defaultMessage: err ?? 'get items fail',
         });
+        setIsLoading(false);
+
         message.error(defaultItemFailureMessage);
       });
 
@@ -376,6 +393,7 @@ const TableList: React.FC = () => {
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
         headerTitle="Model Table"
+        loading={isLoading}
         actionRef={actionRef}
         rowKey="id"
         search={{

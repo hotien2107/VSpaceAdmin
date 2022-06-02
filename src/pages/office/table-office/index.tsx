@@ -30,7 +30,7 @@ const OfficeTable: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<TableListItem>();
   const [currentOffice, setCurrentOffice] = useState<OfficeDetail>();
   const [countHanlde, setCountHandle] = useState<number>(0);
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [sorter, setSorter] = useState<string>("");
   const intl = useIntl();
@@ -62,7 +62,7 @@ const OfficeTable: React.FC = () => {
       },
     },
     {
-      title: 'Create by User',
+      title: 'Created by User',
       dataIndex: 'nameUser',
       renderText: (text: string) => <p>{text}</p>,
     },
@@ -229,8 +229,34 @@ const OfficeTable: React.FC = () => {
     });
   };
 
+  const customField = (key: string) => {
+    let tmp: string="";
+    switch (key) {
+      case "createdAt":
+        tmp = "created_at";
+        break;
+      default:
+        tmp=key;
+        break;
+    }
+    return tmp;
+  }
+
+  const handleSorter = (sorter: any) => {
+    let key: any;
+    let sorterTmp: string = "";
+    for (key in sorter) {
+      let element: string = sorter[key] == "ascend" ? customField(key) : "-" + customField(key);
+      sorterTmp += element + ","
+    }
+    if (sorterTmp.length > 0) {
+      sorterTmp = sorterTmp.substring(0, sorterTmp.length - 1)
+    }
+    setSorter(sorterTmp);
+  }
 
   useEffect(() => {
+    setIsLoading(true);
     GetOfficeListProxy({ page: currentPage, limit: pageSize, "name[startsWith]":name,sort_by:sorter })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
@@ -239,6 +265,7 @@ const OfficeTable: React.FC = () => {
             defaultMessage: res.message ?? 'Load fail',
           });
           message.error(defaultOfficeFailureMessage);
+          setIsLoading(false);
           return;
         }
 
@@ -267,12 +294,14 @@ const OfficeTable: React.FC = () => {
             });
           }
         }
+        setIsLoading(false);
       })
       .catch((err) => {
         const defaultOfficeFailureMessage = intl.formatMessage({
           id: 'pages.load.failure',
           defaultMessage: err ?? 'Load Office fail',
         });
+        setIsLoading(false);
         message.error(defaultOfficeFailureMessage);
       });
   }, [intl, countHanlde, currentPage, pageSize,name,sorter]);
@@ -282,19 +311,14 @@ const OfficeTable: React.FC = () => {
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
         headerTitle="Office Table"
-        
+        loading={isLoading}
         actionRef={actionRef}
         rowKey="id"
         search={{
           labelWidth: 120,
         }}
         request={(params, sorter) => {
-          setName(params?.name);
-          let nameSorter:string="";
-          nameSorter= sorter.name && sorter.name ==="ascend"?"name":"-name";
-          let createAtSorter:string="";
-          createAtSorter= sorter.createAt && sorter.createAt ==="ascend"?"create_at":"-create_at";
-          setSorter(nameSorter+","+createAtSorter);
+          handleSorter(sorter)
           return Promise.resolve({
             success: true,
           });

@@ -219,7 +219,6 @@ const CategoryTable: React.FC = () => {
   };
 
   const GetCategory = (id: number) => {
-    setIsLoading(true);
     GetCategoryProxy({
       id: id
     })
@@ -230,7 +229,6 @@ const CategoryTable: React.FC = () => {
             id: 'pages.detail.fail',
             defaultMessage: res.message ?? 'get detail category fail',
           });
-          setIsLoading(false);
           message.error(defaultCategoryFailureMessage);
           return;
         }
@@ -240,7 +238,6 @@ const CategoryTable: React.FC = () => {
             id: 'pages.detail.success',
             defaultMessage: 'Success!',
           });
-          setIsLoading(false);
           setCurrentCategory(res?.data.itemCategory);
         }
       })
@@ -249,7 +246,6 @@ const CategoryTable: React.FC = () => {
           id: 'pages.detail.fail',
           defaultMessage: err.message ?? 'get detail category fail',
         });
-        setIsLoading(false);
         message.error(defaultCategoryFailureMessage);
       })
       .finally(() => { });
@@ -346,6 +342,7 @@ const CategoryTable: React.FC = () => {
     <PageContainer>
       <ProTable<TableListItem, TableListPagination>
         search={false}
+        loading={isLoading}
         headerTitle="Item Category Table"
         actionRef={actionRef}
         rowKey="id"

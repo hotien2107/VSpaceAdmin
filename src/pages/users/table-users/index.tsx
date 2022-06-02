@@ -35,6 +35,7 @@ const TableUsers: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [sorter, setSorter] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
   const intl = useIntl();
@@ -58,10 +59,12 @@ const TableUsers: React.FC = () => {
         sort_by: sorter
       };
     }
+    setIsLoading(true);
     UserListProxy(tmp)
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
           message.error('Do not load user list');
+          setIsLoading(false);
           return;
         }
 
@@ -78,8 +81,10 @@ const TableUsers: React.FC = () => {
             });
           }
         }
+        setIsLoading(false);
       })
       .catch((err) => {
+        setIsLoading(false);
         message.error('Do not load user list', err);
       });
   }, [intl, countGetUserList, currentPage, pageSize, name, email, sorter, status]);
@@ -286,6 +291,7 @@ const TableUsers: React.FC = () => {
     <PageContainer>
       <ProTable<TableUsersItem, TableUsersPagination>
         headerTitle="User List"
+        loading={isLoading}
         cardBordered
         actionRef={actionRef}
         rowKey="id"

@@ -3,7 +3,6 @@ import { defineConfig } from 'umi';
 import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
-import component from '@/locales/en-US/component';
 
 const { REACT_APP_ENV } = process.env;
 
