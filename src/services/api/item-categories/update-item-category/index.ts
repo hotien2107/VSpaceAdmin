@@ -8,5 +8,6 @@ export async function updateCategory(params: ItemParamsInterface) {
         name: params.name,
         description: params.description,
     });
+    console.log(response.data)
     return response.data;
 }

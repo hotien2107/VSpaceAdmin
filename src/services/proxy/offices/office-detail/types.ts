@@ -21,6 +21,7 @@ interface OfficeDetailInterface {
   officeItems: any[];
   officeMembers: OfficeMembersInterface[];
   createdAt: string;
+  status: 'active'| 'blocked';
 }
 
 interface OfficeMembersInterface {

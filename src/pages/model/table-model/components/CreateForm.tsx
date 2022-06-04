@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ModalForm, ProFormText, ProFormSelect } from '@ant-design/pro-form';
-import { Button, message, Upload } from 'antd';
+import { Button, message, Upload, Form } from 'antd';
 import type { InputForm, SelectedInterface } from "../data";
 import { UploadOutlined } from '@ant-design/icons';
 import CategoryListProxy from '@/services/proxy/item-categories/get-item-categories';
 import axios from 'axios';
-import { CategoryInterface } from '@/types/item';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
 
 
@@ -21,6 +20,7 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
   const [isModel, setIsModel] = useState<string>('');
   const [isImage, setIsImage] = useState<string>('');
   const [categoryList, setCategoryList] = useState<SelectedInterface[]>();
+  const [form] = Form.useForm()
 
   useEffect(() => {
     CategoryListProxy({})
@@ -45,18 +45,20 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
       .catch((err) => {
         message.error("Don't load category list");
       });
+      form.resetFields();
   }, [])
 
   return (
     <ModalForm
       title="Create model"
       width="400px"
+      form={form}
       visible={modalVisible}
       onVisibleChange={handleModalVisible}
       onFinish={async (value) => {
         onSubmit({
-          name: value.name,
-          categoryId: value.category,
+          name: value.name.trim()==""?"":value.name,
+          categoryId: Number.parseInt(value.category),
           image: isImage,
           modelPath: isModel,
         });

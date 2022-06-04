@@ -55,13 +55,13 @@ const TableList: React.FC = () => {
     })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          message.error('Create item fail');
+          message.error('Create model fail');
           setIsLoading(false);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          message.success('Create item success');
+          message.success('Create model success');
           handleModalVisible(false);
           setIsLoading(false);
           setCountGetItemList(countGetItemList + 1);
@@ -69,7 +69,7 @@ const TableList: React.FC = () => {
       })
       .catch((err) => {
         setIsLoading(false);
-        message.error('Create item fail', err);
+        message.error('Create mocel fail', err);
       })
       .finally(() => { });
   };
@@ -80,29 +80,17 @@ const TableList: React.FC = () => {
     })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultItemFailureMessage = intl.formatMessage({
-            id: 'pages.delete.fail',
-            defaultMessage: res.message ?? 'delete item fail',
-          });
-          message.error(defaultItemFailureMessage);
+          message.error(res.message ?? 'Delete model fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultItemSuccessMessage = intl.formatMessage({
-            id: 'pages.delete.success',
-            defaultMessage: 'Success!',
-          });
-          message.success(defaultItemSuccessMessage);
+          message.success('Success!');
           setCountGetItemList(countGetItemList + 1);
         }
       })
       .catch((err) => {
-        const defaultItemFailureMessage = intl.formatMessage({
-          id: 'pages.delete.failure',
-          defaultMessage: err.message ?? 'delete item fail',
-        });
-        message.error(defaultItemFailureMessage);
+        message.error(err.message ?? 'Delete model fail');
       })
       .finally(() => { });
   };
@@ -119,22 +107,13 @@ const TableList: React.FC = () => {
     })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultCategoryFailureMessage = intl.formatMessage({
-            id: 'pages.update.fail',
-            defaultMessage: res.message ?? 'Update Item fail',
-          });
-          setIsLoading(false);
-          message.error(defaultCategoryFailureMessage);
+          message.error(res.message ?? 'Update model fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultCategorySuccessMessage = intl.formatMessage({
-            id: 'pages.update.success',
-            defaultMessage: 'Success!',
-          });
           setIsLoading(false);
-          message.success(defaultCategorySuccessMessage);
+          message.success( 'Success!');
           setCountGetItemList(countGetItemList + 1);
           setCurrentRow(undefined);
           handleUpdateModalVisible(false);
@@ -142,13 +121,9 @@ const TableList: React.FC = () => {
         }
       })
       .catch((err) => {
-        const defaultCategoryFailureMessage = intl.formatMessage({
-          id: 'pages.update.fail',
-          defaultMessage: err.message ?? 'Update Item fail',
-        });
         setIsLoading(false);
 
-        message.error(defaultCategoryFailureMessage);
+        message.error( err.message ?? 'Update model fail');
       })
       .finally(() => { });
   };
@@ -219,15 +194,10 @@ const TableList: React.FC = () => {
 
     ItemListProxy(tmp)
       .then((res) => {
-        console.log(res)
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultItemFailureMessage = intl.formatMessage({
-            id: 'pages.load.fail',
-            defaultMessage: res.message ?? 'get items fail',
-          });
           setIsLoading(false);
 
-          message.error(defaultItemFailureMessage);
+          message.error(res.message ?? 'Load items fail');
           return;
         }
 
@@ -247,13 +217,9 @@ const TableList: React.FC = () => {
 
       })
       .catch((err) => {
-        const defaultItemFailureMessage = intl.formatMessage({
-          id: 'pages.load.fail',
-          defaultMessage: err ?? 'get items fail',
-        });
         setIsLoading(false);
 
-        message.error(defaultItemFailureMessage);
+        message.error(err ?? 'get items fail');
       });
 
     CategoryListProxy({})

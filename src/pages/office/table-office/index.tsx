@@ -20,7 +20,7 @@ const OfficeTable: React.FC = () => {
     total: 0,
     pageSize: 0,
     current: 1,
-    name:"",
+    name: "",
   });
   const [blockModalVisible, handleBlockModalVisible] = useState<boolean>(false);
   const [unblockModalVisible, handleUnblockModalVisible] = useState<boolean>(false);
@@ -39,7 +39,7 @@ const OfficeTable: React.FC = () => {
     {
       title: 'ID',
       dataIndex: 'id',
-      hideInSearch:true,
+      hideInSearch: true,
     },
     {
       title: 'Name',
@@ -67,7 +67,32 @@ const OfficeTable: React.FC = () => {
       renderText: (text: string) => <p>{text}</p>,
     },
     {
-      hideInSearch:true,
+      hideInSearch: true,
+      title: 'Status',
+      dataIndex: 'status',
+      filters: [
+        {
+          text: 'Active',
+          value: 'active',
+        },
+        {
+          text: 'Blocked',
+          value: 'blocked',
+        },
+      ],
+      valueEnum: {
+        0: {
+          text: 'Active',
+          status: 'active',
+        },
+        1: {
+          text: 'Blocked',
+          status: 'blocked',
+        },
+      },
+    },
+    {
+      hideInSearch: true,
       title: 'Created At',
       sorter: {
         multiple: 2,
@@ -92,36 +117,52 @@ const OfficeTable: React.FC = () => {
       title: 'Option',
       dataIndex: 'option',
       valueType: 'option',
-      render: (_, record) => [
-        <a
-          key="detail"
-          onClick={() => {
-            GetOffice(record.id);
-            setShowDetail(true);
-            setCurrentRow(record);
-          }}
-        >
-          Detail
-        </a>,
-        <a
-          key="block"
-          onClick={() => {
-            handleBlockModalVisible(true);
-            setCurrentRow(record);
-          }}
-        >
-          Block
-        </a>,
-         <a
-         key="unblock"
-         onClick={() => {
-           handleUnblockModalVisible(true);
-           setCurrentRow(record);
-         }}
-       >
-         Unblock
-       </a>,
-      ],
+      render: (_, record) => {
+        if (record.status === 'blocked') {
+          return [
+            <a
+              key="detail"
+              onClick={() => {
+                GetOffice(record.id);
+                setShowDetail(true);
+                setCurrentRow(record);
+              }}
+            >
+              Detail
+            </a>,
+            <a
+              key="config"
+              onClick={() => {
+                handleUnblockModalVisible(true);
+                setCurrentRow(record);
+              }}
+            >
+              Unblock
+            </a>,
+          ];
+        }
+        return [
+          <a
+            key="detail"
+            onClick={() => {
+              GetOffice(record.id);
+              setShowDetail(true);
+              setCurrentRow(record);
+            }}
+          >
+            Detail
+          </a>,
+          <a
+            key="config"
+            onClick={() => {
+              handleBlockModalVisible(true);
+              setCurrentRow(record);
+            }}
+          >
+            Block
+          </a>,
+        ];
+      }
     },
   ];
 
@@ -137,13 +178,38 @@ const OfficeTable: React.FC = () => {
     },
     {
       title: 'Invitation Code',
-      hideInSearch:true,
+      hideInSearch: true,
       dataIndex: 'invitationCode',
       renderText: (text: string) => <p>{text}</p>,
     },
+    // {
+    //   hideInSearch: true,
+    //   title: 'Status',
+    //   dataIndex: 'status',
+    //   filters: [
+    //     {
+    //       text: 'Active',
+    //       value: 'active',
+    //     },
+    //     {
+    //       text: 'Blocked',
+    //       value: 'blocked',
+    //     },
+    //   ],
+    //   valueEnum: {
+    //     0: {
+    //       text: 'Active',
+    //       status: 'active',
+    //     },
+    //     1: {
+    //       text: 'Blocked',
+    //       status: 'blocked',
+    //     },
+    //   },
+    // },
     {
       title: 'Created At',
-      hideInSearch:true,
+      hideInSearch: true,
       sorter: true,
       dataIndex: 'createdAt',
       valueType: 'dateTime',
@@ -164,7 +230,7 @@ const OfficeTable: React.FC = () => {
     {
       title: 'Option',
       dataIndex: 'option',
-      hideInSearch:true,
+      hideInSearch: true,
       valueType: 'option',
     },
   ];
@@ -175,28 +241,16 @@ const OfficeTable: React.FC = () => {
     })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultOfficeFailureMessage = intl.formatMessage({
-            id: 'pages.detail.fail',
-            defaultMessage: res.message ?? 'get detail office fail',
-          });
-          message.error(defaultOfficeFailureMessage);
+          message.error(res.message ?? 'Get detail office fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultOfficeSuccessMessage = intl.formatMessage({
-            id: 'pages.detail.success',
-            defaultMessage: 'Success!',
-          });
           setCurrentOffice(res?.data.office);
         }
       })
       .catch((err) => {
-        const defaultOfficeFailureMessage = intl.formatMessage({
-          id: 'pages.detail.fail',
-          defaultMessage: err.message ?? 'get detail office fail',
-        });
-        message.error(defaultOfficeFailureMessage);
+        message.error(err.message ?? 'get detail office fail');
       })
       .finally(() => { });
   };
@@ -230,13 +284,13 @@ const OfficeTable: React.FC = () => {
   };
 
   const customField = (key: string) => {
-    let tmp: string="";
+    let tmp: string = "";
     switch (key) {
       case "createdAt":
         tmp = "created_at";
         break;
       default:
-        tmp=key;
+        tmp = key;
         break;
     }
     return tmp;
@@ -257,7 +311,7 @@ const OfficeTable: React.FC = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    GetOfficeListProxy({ page: currentPage, limit: pageSize, "name[startsWith]":name,sort_by:sorter })
+    GetOfficeListProxy({ page: currentPage, limit: pageSize, "name[startsWith]": name, sort_by: sorter })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
           const defaultOfficeFailureMessage = intl.formatMessage({
@@ -281,6 +335,7 @@ const OfficeTable: React.FC = () => {
               name: item.name,
               nameUser: item.createdBy.name,
               createdAt: item.createdAt,
+              status: item.status,
             }
             list.push(tmp);
           })
@@ -290,7 +345,7 @@ const OfficeTable: React.FC = () => {
               total: res?.data?.pagination?.totalCount ?? 0,
               pageSize: res?.data?.pagination?.count ?? pageSize,
               current: res?.data?.pagination?.page ?? 1,
-              name:"",
+              name: "",
             });
           }
         }
@@ -304,7 +359,7 @@ const OfficeTable: React.FC = () => {
         setIsLoading(false);
         message.error(defaultOfficeFailureMessage);
       });
-  }, [intl, countHanlde, currentPage, pageSize,name,sorter]);
+  }, [intl, countHanlde, currentPage, pageSize, name, sorter]);
 
 
   return (
@@ -330,7 +385,7 @@ const OfficeTable: React.FC = () => {
           total: pagination.total,
           current: pagination.current,
           showSizeChanger: true,
-          pageSizeOptions: ["5", "10", "20","50","100"],
+          pageSizeOptions: ["5", "10", "20", "50", "100"],
           onShowSizeChange: (page, pageSize) => {
             setPageSize(pageSize);
           },
@@ -367,7 +422,7 @@ const OfficeTable: React.FC = () => {
           handleUnblockModalVisible(false);
         }}
       >
-        <p>Do you want to unblock this user?</p>
+        <p>Do you want to unblock this office?</p>
       </Modal>
       <Drawer
         width={600}

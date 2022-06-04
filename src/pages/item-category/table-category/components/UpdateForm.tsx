@@ -24,14 +24,14 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
   return (
     <ModalForm
     form={form}
-    title="Update Item Category"
+    title="Update Category"
     width="400px"
     visible={modalVisible}
     onVisibleChange={handleModalVisible}
     onFinish={async (value) => {
       const category:InputForm={
         name: value.name,
-        description: value.description,
+        description: value.description.trim() == ""?"":value.description,
       }
       onSubmit(currentItem?.id, category);
       handleModalVisible(false);

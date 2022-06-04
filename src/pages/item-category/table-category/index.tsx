@@ -144,33 +144,21 @@ const CategoryTable: React.FC = () => {
       .then((res) => {
         (res)
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultCategoryFailureMessage = intl.formatMessage({
-            id: 'pages.create.fail',
-            defaultMessage: res.message ?? 'create category fail',
-          });
           setIsLoading(false);
-          message.error(defaultCategoryFailureMessage);
+          message.error(res?.message?? 'create category fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultCategorySuccessMessage = intl.formatMessage({
-            id: 'pages.create.success',
-            defaultMessage: 'Success!',
-          });
           setIsLoading(false);
-          message.success(defaultCategorySuccessMessage);
+          message.success("Success.");
           handleModalVisible(false);
           setCountHandle(countHanlde + 1);
         }
       })
       .catch((err) => {
-        const defaultCategoryFailureMessage = intl.formatMessage({
-          id: 'pages.create.failure',
-          defaultMessage: err.message ?? 'create category fail',
-        });
         setIsLoading(false);
-        message.error(defaultCategoryFailureMessage);
+        message.error(err.message ?? 'create category fail');
       })
       .finally(() => { });
   };
@@ -185,22 +173,14 @@ const CategoryTable: React.FC = () => {
       .then((res) => {
         (res)
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultCategoryFailureMessage = intl.formatMessage({
-            id: 'pages.update.fail',
-            defaultMessage: res.message ?? 'Update Category fail',
-          });
           setIsLoading(false);
-          message.error(defaultCategoryFailureMessage);
+          message.error(res.message ?? 'Update Category fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultCategorySuccessMessage = intl.formatMessage({
-            id: 'pages.update.success',
-            defaultMessage: 'Success!',
-          });
           setIsLoading(false);
-          message.success(defaultCategorySuccessMessage);
+          message.success('Success!');
           setCountHandle(countHanlde + 1);
           handleUpdateModalVisible(false);
           GetCategory(id);
@@ -208,12 +188,8 @@ const CategoryTable: React.FC = () => {
         }
       })
       .catch((err) => {
-        const defaultCategoryFailureMessage = intl.formatMessage({
-          id: 'pages.update.fail',
-          defaultMessage: err.message ?? 'Update Category fail',
-        });
         setIsLoading(false);
-        message.error(defaultCategoryFailureMessage);
+        message.error(err.message ?? 'Update Category fail');
       })
       .finally(() => { });
   };
@@ -225,28 +201,16 @@ const CategoryTable: React.FC = () => {
       .then((res) => {
         (res);
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultCategoryFailureMessage = intl.formatMessage({
-            id: 'pages.detail.fail',
-            defaultMessage: res.message ?? 'get detail category fail',
-          });
-          message.error(defaultCategoryFailureMessage);
+          message.error(res.message ?? 'get detail category fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultCategorySuccessMessage = intl.formatMessage({
-            id: 'pages.detail.success',
-            defaultMessage: 'Success!',
-          });
           setCurrentCategory(res?.data.itemCategory);
         }
       })
       .catch((err) => {
-        const defaultCategoryFailureMessage = intl.formatMessage({
-          id: 'pages.detail.fail',
-          defaultMessage: err.message ?? 'get detail category fail',
-        });
-        message.error(defaultCategoryFailureMessage);
+        message.error(err.message ?? 'get detail category fail');
       })
       .finally(() => { });
   };
@@ -257,29 +221,17 @@ const CategoryTable: React.FC = () => {
     })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultItemFailureMessage = intl.formatMessage({
-            id: 'pages.delete.fail',
-            defaultMessage: res.message ?? 'delete category fail',
-          });
-          message.error(defaultItemFailureMessage);
+          message.error(res.message ?? 'delete category fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultItemSuccessMessage = intl.formatMessage({
-            id: 'pages.delete.success',
-            defaultMessage: 'Success!',
-          });
-          message.success(defaultItemSuccessMessage);
+          message.success('Success!');
           setCountHandle(countHanlde + 1);
         }
       })
       .catch((err) => {
-        const defaultItemFailureMessage = intl.formatMessage({
-          id: 'pages.delete.failure',
-          defaultMessage: err.message ?? 'delete category fail',
-        });
-        message.error(defaultItemFailureMessage);
+        message.error( err.message ?? 'delete category fail');
       })
       .finally(() => { });
   };
@@ -290,23 +242,15 @@ const CategoryTable: React.FC = () => {
     CategoryListProxy({ page: currentPage, limit: pageSize })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultCategoryFailureMessage = intl.formatMessage({
-            id: 'pages.load.fails',
-            defaultMessage: res.message ?? 'Load fail',
-          });
           setIsLoading(false);
-          message.error(defaultCategoryFailureMessage);
+          message.error(res.message ?? 'Load fail');
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultCategorySuccessMessage = intl.formatMessage({
-            id: 'pages.load.success',
-            defaultMessage: 'Success!',
-          });
+
           let list: Array<TableListItem> = [];
           res?.data?.itemCategories && res?.data?.itemCategories.map((item) => {
-            console.log(item)
             let tmp: TableListItem = {
               id: item.id,
               name: item.name,
@@ -328,12 +272,8 @@ const CategoryTable: React.FC = () => {
         setIsLoading(false);
       })
       .catch((err) => {
-        const defaultCategoryFailureMessage = intl.formatMessage({
-          id: 'pages.load.failure',
-          defaultMessage: err ?? 'Load category fail',
-        });
         setIsLoading(false);
-        message.error(defaultCategoryFailureMessage);
+        message.error( err ?? 'Load category fail');
       });
   }, [intl, countHanlde, currentPage, pageSize]);
 
@@ -343,7 +283,7 @@ const CategoryTable: React.FC = () => {
       <ProTable<TableListItem, TableListPagination>
         search={false}
         loading={isLoading}
-        headerTitle="Item Category Table"
+        headerTitle="Category List "
         actionRef={actionRef}
         rowKey="id"
         toolBarRender={() => [

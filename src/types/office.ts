@@ -21,6 +21,7 @@ export interface OfficeInterface {
     invitationCode: string;
     createdBy: OfficeUserInterface;
     createdAt: string;
+    status: "active" | "blocked";
 }
 
 export interface MemberOfficeInterface {
@@ -43,6 +44,7 @@ export interface OfficeDetailInterface {
     createdAt: string;
     numberOfItems: number;
     numberOfMembers: number
+    status: "active" | "blocked";
 }
 
 

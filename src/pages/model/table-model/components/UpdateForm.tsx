@@ -58,8 +58,8 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
     onVisibleChange={handleModalVisible}
     onFinish={async (value) => {
       const tmp:InputForm ={
-        name: value.name,
-        categoryId: value.category,
+        name: value.name.trim()==""?"":value.name,
+        categoryId: Number.parseInt(value.category),
         image: isImage,
         modelPath: isModel,
       }

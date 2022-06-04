@@ -15,6 +15,7 @@ const Transform = (
 
 const CreateCategoryProxy = async (params: ItemParamsInterface): Promise<ProxyFuncType<ProxyResponseInterface>> => {
   const res = await createCategory(params);
+  console.log(res)
 
   if (res?.code && res?.code !== 200) {
     return {

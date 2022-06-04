@@ -3,12 +3,14 @@ export type TableListItem = {
   name: string;
   nameUser: string;
   createdAt: string;
+  status: 'active'| 'blocked';
 };
 
 export type OfficeDetail = {
   id: number;
   name: string;
   invitationCode: string;
+  status: 'active'| 'blocked';
   createdBy: {
     id: number;
     name: string;
