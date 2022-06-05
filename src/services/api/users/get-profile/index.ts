@@ -1,8 +1,7 @@
 import HttpClient from "../../../../helpers/axios";
 import type { UserApiResponseInterface } from "./types";
 
-const baseUrl = process.env.REACT_APP_BASE_URL;
-const URL = baseUrl + "/users/me/profile";
+const URL = "/users/me/profile";
 
 export async function getProfile() {
   const response = await HttpClient.get<UserApiResponseInterface>(URL);

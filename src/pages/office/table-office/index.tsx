@@ -7,7 +7,6 @@ import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { TableListItem, TableListPagination, OfficeDetail } from './data.d';
 import { ProxyStatusEnum } from '@/types/http/proxy/ProxyStatus';
-import { useIntl } from "umi";
 import GetOfficeListProxy from '@/services/proxy/offices/office-list';
 import OfficeDetailProxy from '@/services/proxy/offices/office-detail';
 import BlockOfficeProxy from '@/services/proxy/offices/block-office';
@@ -33,7 +32,7 @@ const OfficeTable: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [sorter, setSorter] = useState<string>("");
-  const intl = useIntl();
+
 
   const columns: ProColumns<TableListItem>[] = [
     {
@@ -314,20 +313,12 @@ const OfficeTable: React.FC = () => {
     GetOfficeListProxy({ page: currentPage, limit: pageSize, "name[startsWith]": name, sort_by: sorter })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          const defaultOfficeFailureMessage = intl.formatMessage({
-            id: 'pages.load.fails',
-            defaultMessage: res.message ?? 'Load fail',
-          });
-          message.error(defaultOfficeFailureMessage);
+          message.error(res.message ?? 'Load fail');
           setIsLoading(false);
           return;
         }
 
         if (res.status === ProxyStatusEnum.SUCCESS) {
-          const defaultOfficeSuccessMessage = intl.formatMessage({
-            id: 'pages.load.success',
-            defaultMessage: 'Success!',
-          });
           let list: Array<TableListItem> = [];
           res?.data?.offices.map((item) => {
             let tmp: TableListItem = {
@@ -352,14 +343,10 @@ const OfficeTable: React.FC = () => {
         setIsLoading(false);
       })
       .catch((err) => {
-        const defaultOfficeFailureMessage = intl.formatMessage({
-          id: 'pages.load.failure',
-          defaultMessage: err ?? 'Load Office fail',
-        });
         setIsLoading(false);
-        message.error(defaultOfficeFailureMessage);
+        message.error(err ?? 'Load Office fail');
       });
-  }, [intl, countHanlde, currentPage, pageSize, name, sorter]);
+  }, [countHanlde, currentPage, pageSize, name, sorter]);
 
 
   return (

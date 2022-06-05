@@ -201,12 +201,12 @@ export default defineConfig({
     //     },
     //   ],
     // },
-    // {
-    //   path: '/profile/basic',
-    //   name: 'profile',
-    //   icon: 'profile',
-    //   component:'./profile/basic'
-    // },
+    {
+      path: '/profile/basic',
+      name: 'profile',
+      icon: 'profile',
+      component:'./profile/basic'
+    },
     // {
     //   name: 'result',
     //   icon: 'CheckCircleOutlined',

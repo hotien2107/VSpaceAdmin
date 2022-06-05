@@ -1,17 +1,11 @@
-export type BasicGood = {
-  id: string;
-  name?: string;
-  barcode?: string;
-  price?: string;
-  num?: string | number;
-  amount?: string | number;
-};
+export interface EditProfileFormValuesInterface {
+  name: string;
+  phone: string;
+  avatar: string;
+}
 
-export type BasicProgress = {
-  key: string;
-  time: string;
-  rate: string;
-  status: string;
-  operator: string;
-  cost: string;
-};
+export interface ChangePasswordFormValuesInterface {
+  oldPassword: string;
+  newPassword: string;
+}
+  

@@ -45,7 +45,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
     (event: MenuInfo) => {
       const { key } = event;
       if (key === 'logout') {
-        setInitialState((s) => ({
+        setInitialState((s:any) => ({
           accessToken: s?.accessToken,
           refreshToken: s?.refreshToken,
           user: undefined,
@@ -57,7 +57,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
         loginOut();
         return;
       }
-      history.push(`/account/${key}`);
+      history.push(`/profile/${key}`);
     },
     [setInitialState],
   );
@@ -86,18 +86,12 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
   const menuHeaderDropdown = (
     <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-      {/* {menu && (
-        <Menu.Item key="center">
+      {menu && (
+        <Menu.Item key="basic">
           <UserOutlined />
           Profile
         </Menu.Item>
-      )} */}
-      {/* {menu && (
-        <Menu.Item key="settings">
-          <SettingOutlined />
-          Setting
-        </Menu.Item>
-      )} */}
+      )}
       {menu && <Menu.Divider />}
 
       <Menu.Item key="logout">
