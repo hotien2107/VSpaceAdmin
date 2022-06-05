@@ -23,6 +23,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
   const [isModel, setIsModel] = useState<string>(currentItem.modelPath);
   const [isImage, setIsImage] = useState<string>(currentItem.image);
   const [categoryList, setCategoryList] = useState<SelectedInterface[]>();
+
  useEffect(() => {
     CategoryListProxy({})
       .then((res) => {
@@ -57,9 +58,11 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
     visible={modalVisible}
     onVisibleChange={handleModalVisible}
     onFinish={async (value) => {
+      console.log(currentItem?.category.id);
+      console.log(value);
       const tmp:InputForm ={
         name: value.name.trim()==""?"":value.name,
-        categoryId: Number.parseInt(value.category),
+        categoryId: Number.parseInt(value.category)==NaN?Number.parseInt(value.category):currentItem?.category?.id,
         image: isImage,
         modelPath: isModel,
       }

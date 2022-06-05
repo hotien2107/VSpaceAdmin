@@ -45,6 +45,7 @@ HttpClient.interceptors.request.use(
 HttpClient.interceptors.response.use(async (response) => {
   if (response.data.code === 401) {
       console.log("code");
+      console.log(getDataLocal("refresh_token"));
       const refreshTokenResponse = await axios.post(`${REACT_APP_BASE_URL}/auth/refreshToken`, null, {
           headers: { "x-refresh-token": `${getDataLocal("refresh_token")}` }
       });
@@ -54,6 +55,7 @@ HttpClient.interceptors.response.use(async (response) => {
       }
       if (refreshTokenResponse.data.data.accessToken) {
           const accessToken = refreshTokenResponse.data.data.accessToken;
+          console.log(accessToken);
           await saveDataLocal("access_token", accessToken);
           const config = response.config;
           if (accessToken)
