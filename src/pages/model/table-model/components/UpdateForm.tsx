@@ -76,7 +76,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         width="md"
         name="name"
         placeholder="Enter name..."
-        label="Name model"
+        label="Name"
         initialValue={currentItem?.name}
       />
       <ProFormSelect

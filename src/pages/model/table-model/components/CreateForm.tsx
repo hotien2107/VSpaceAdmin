@@ -74,7 +74,7 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
         width="md"
         name="name"
         placeholder="Enter name..."
-        label="Name model"
+        label="Name"
       />
       <ProFormSelect
         options={categoryList}
