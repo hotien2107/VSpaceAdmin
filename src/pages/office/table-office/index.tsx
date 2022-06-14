@@ -344,7 +344,7 @@ const OfficeTable: React.FC = () => {
       })
       .catch((err) => {
         setIsLoading(false);
-        message.error(err ?? 'Load Office fail');
+        message.error(err?.message ?? 'Load Office fail');
       });
   }, [countHanlde, currentPage, pageSize, name, sorter]);
 

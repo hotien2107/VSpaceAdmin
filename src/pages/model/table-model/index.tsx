@@ -55,7 +55,7 @@ const TableList: React.FC = () => {
     })
       .then((res) => {
         if (res.status === ProxyStatusEnum.FAIL) {
-          message.error('Create model fail');
+          message.error(res?.message?? 'Create model fail');
           setIsLoading(false);
           return;
         }
@@ -69,7 +69,7 @@ const TableList: React.FC = () => {
       })
       .catch((err) => {
         setIsLoading(false);
-        message.error('Create mocel fail', err);
+        message.error(err.message ?? 'Create model fail');
       })
       .finally(() => { });
   };
@@ -219,7 +219,7 @@ const TableList: React.FC = () => {
       .catch((err) => {
         setIsLoading(false);
 
-        message.error(err ?? 'get items fail');
+        message.error(err?.message ?? 'get items fail');
       });
 
     CategoryListProxy({})

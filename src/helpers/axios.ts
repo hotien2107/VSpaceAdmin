@@ -29,6 +29,14 @@ const HttpClient = axios.create({
 
 HttpClient.interceptors.request.use(
   function (config) {
+    console.log(config)
+    for (let key in config?.params) {
+      if (!config?.params[key]) {
+          delete config?.params[key];
+      }
+  }
+  console.log(config)
+
     const accessToken = getDataLocal('access_token');
     if (accessToken)
       config.headers = {
@@ -50,6 +58,7 @@ HttpClient.interceptors.response.use(async (response) => {
           headers: { "x-refresh-token": `${getDataLocal("refresh_token")}` }
       });
 
+      console.log(refreshTokenResponse);
       if (!refreshTokenResponse || !refreshTokenResponse.data || refreshTokenResponse.data.code === 401) {
           return refreshTokenResponse.data;
       }

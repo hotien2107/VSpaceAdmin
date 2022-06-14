@@ -58,8 +58,6 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
     visible={modalVisible}
     onVisibleChange={handleModalVisible}
     onFinish={async (value) => {
-      console.log(currentItem?.category.id);
-      console.log(value);
       const tmp:InputForm ={
         name: value.name.trim()==""?"":value.name,
         categoryId: Number.parseInt(value.category)==NaN?Number.parseInt(value.category):currentItem?.category?.id,
